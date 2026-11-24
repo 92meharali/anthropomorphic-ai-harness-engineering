@@ -4,6 +4,12 @@ This project tests whether a chatbot can correct misleading human-like wording w
 
 For example, “You mentioned earlier that writing things down helps” fits when the user said that earlier. When the full available history contains no such mention, the harness can remove the reference and keep the practical suggestion. The main study also tests wording that implies ongoing personal availability. Ordinary warmth is a control for unnecessary edits.
 
+## Proposed architecture
+
+![Proposed cue-aware harness workflow. The system identifies a cue, checks the evidence, and keeps, edits, or holds the answer before whole-answer OA scoring.](docs/architecture/cue-aware-harness.svg)
+
+[Editable Mermaid source](docs/architecture/cue-aware-harness.mmd). In the first offline experiment, an edit means selecting a prepared alternative. A later experiment will test generating an edit.
+
 ## Current status
 
 - **Available:** the OA runner and protocol, single-revision OA controller, and offline harness that freezes wording pairs, blinds reviewers, and compares saved scores with human preferences.
@@ -15,6 +21,12 @@ For example, “You mentioned earlier that writing things down helps” fits whe
 | Offline OA controller on 40 drafts | Human-rated passes rose from 35/40 to 40/40. Five drafts were revised. |
 
 The 58 human-revise responses in the 120-case test were constructed. The controller results cover five rewrites. See [pilot results and limits](docs/OA_RESULTS.md) for the earlier model comparison and study details.
+
+## Data and annotation
+
+The repo includes [three synthetic wording pairs](examples/wording_pairs.jsonl) for a dry run. The research batch still needs to be assembled from **12 unused PERSONA prompt families**. The plan calls for **20 pair-context cases** and **60 judgments** across three reviewers. The [roadmap issue](https://github.com/92meharali/anthropomorphic-ai-harness-engineering/issues/1) tracks selection, matched edits, and the blinded annotation packet.
+
+The original PERSONA corpus and earlier review files are in the local research archive. Use the [wording study runbook](docs/WORDING_HARNESS.md) to prepare and score the new batch locally.
 
 ## Run the offline example
 

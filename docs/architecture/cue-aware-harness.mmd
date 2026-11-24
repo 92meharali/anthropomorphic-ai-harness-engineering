@@ -1,0 +1,29 @@
+%%{init: {"theme":"base","htmlLabels":false,"themeVariables":{"fontFamily":"Arial, sans-serif","fontSize":"17px","lineColor":"#52706A","primaryTextColor":"#17312D","edgeLabelBackground":"#FFFFFF"},"flowchart":{"htmlLabels":false,"curve":"basis","nodeSpacing":26,"rankSpacing":34,"padding":12}}}%%
+flowchart TD
+    U["User message and visible history"] --> G["Generate and buffer a draft"]
+    G --> D["Identify the cue and implied claim"]
+    D --> E["Check the cue against evidence"]
+    C["History and trusted capabilities"] --> E
+
+    E -->|"Wording fits"| K["Keep the draft"]
+    E -->|"Unsupported claim"| R["Edit the flagged wording"]
+    E -->|"Unclear"| H["Hold for review"]
+    R --> V["Verify cue and advice"]
+    V -->|"Failed or unclear"| H
+    V -->|"Verified"| O["Whole-answer OA check"]
+    K --> O
+
+    O -->|"OA 4 or 5"| S["Select the answer"]
+    O -->|"OA below 4"| P["Existing general revision path"]
+    O -->|"Unresolved"| H
+
+    classDef input fill:#EDF2F7,stroke:#62768A,color:#17312D
+    classDef process fill:#E8F3EE,stroke:#52786B,color:#17312D
+    classDef decision fill:#D7EEE3,stroke:#346D5B,color:#17312D
+    classDef select fill:#1B5647,stroke:#1B5647,color:#FFFFFF
+    classDef hold fill:#FFF1D5,stroke:#98762D,color:#3B311D
+    class U,C input
+    class G,D,K,R,P process
+    class E,V,O decision
+    class S select
+    class H hold
