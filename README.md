@@ -4,12 +4,6 @@ This project tests whether a chatbot can correct misleading human-like wording w
 
 For example, “You mentioned earlier that writing things down helps” fits when the user said that earlier. When the full available history contains no such mention, the harness can remove the reference and keep the practical suggestion. The main study also tests wording that implies ongoing personal availability. Ordinary warmth is a control for unnecessary edits.
 
-## Proposed architecture
-
-![Proposed cue-aware harness workflow. The system identifies a cue, checks the evidence, and keeps, edits, or holds the answer before whole-answer OA scoring.](docs/architecture/cue-aware-harness.svg)
-
-[Editable Mermaid source](docs/architecture/cue-aware-harness.mmd). In the first offline experiment, an edit means selecting a prepared alternative. A later experiment will test generating an edit.
-
 ## Current status
 
 - **Available:** the OA runner and protocol, single-revision OA controller, and offline harness that freezes wording pairs, blinds reviewers, and compares saved scores with human preferences.
@@ -52,3 +46,12 @@ The first command checks the local software. Preparation writes a blinded A/B pa
 - [Wording study runbook](docs/WORDING_HARNESS.md)
 
 Keep study inputs, generated packets, annotation submissions, scoring logs and API keys in ignored local directories. The historical workspace preserves earlier pilot scripts and artifacts.
+
+## Proposed architecture
+
+![Proposed cue-aware harness workflow. The system identifies a cue, checks the evidence, and keeps, edits, or holds the answer before whole-answer OA scoring.]<img width="1726" height="2160" alt="mermaid-diagram (1)" src="https://github.com/user-attachments/assets/a8de52b8-1ab8-46f9-bd87-65f649e12442" />
+
+
+[Editable Mermaid source](docs/architecture/cue-aware-harness.mmd). In the first offline experiment, an edit means selecting a prepared alternative. A later experiment will test generating an edit.
+
+
