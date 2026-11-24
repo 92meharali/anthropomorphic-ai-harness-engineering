@@ -81,11 +81,12 @@ def main():
     parser.add_argument('--protocol', type=Path, default=ROOT / 'rubric/oa_protocol.json')
     parser.add_argument('--env-file', type=Path, default=ROOT / '.env')
     parser.add_argument('--run-dir', type=Path)
-    parser.add_argument('--limit', type=int, default=60, help='Response records, maximum 60 for this development runner')
+    parser.add_argument('--limit', type=int, default=60,
+                        help='Response records to score (default: 60, maximum: 200)')
     parser.add_argument('--dry-run', action='store_true')
     args = parser.parse_args()
-    if not 1 <= args.limit <= 60:
-        parser.error('--limit must be between 1 and 60')
+    if not 1 <= args.limit <= 200:
+        parser.error('--limit must be between 1 and 200')
     if 'reserved' in args.input.parts:
         parser.error('Reserved examples are locked out of this development runner')
     load_env(args.env_file)

@@ -34,7 +34,7 @@ OPENAI_MODEL=gpt-6.2-sol python3 -m evaluation.run \
   --run-dir private/wording-study/oa-run --dry-run
 ```
 
-Remove `--dry-run` for a live scoring run, and use a new run directory for the live results. The existing OA runner has a 60-response limit. For a larger study, score explicit shards with the same configuration, then combine the non-overlapping results before analysis.
+Remove `--dry-run` for a live scoring run, and use a new run directory for the live results. The OA runner defaults to 60 responses and accepts up to 200 with an explicit `--limit`. See the [dataset handoff](../data/README.md) for the full 200-trial command. For larger studies, score explicit shards with the same configuration and combine the non-overlapping results before analysis.
 
 Run the published HumT scorer separately. First verify the implementation and score direction on a small development fixture. Save the scorer version, model and settings with the run. Export one row per response with `item_id`, `response_sha256` (SHA-256 of the exact response encoded as UTF-8), and a finite numeric `humt` or `null`. Missing scores and abstentions are recorded as unresolved. This harness imports HumT scores and does not compute them.
 

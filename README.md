@@ -24,9 +24,9 @@ The 58 human-revise responses in the 120-case test were constructed. The control
 
 ## Data and annotation
 
-The repo includes [three synthetic wording pairs](examples/wording_pairs.jsonl) for a dry run. The research batch still needs to be assembled from **12 unused PERSONA prompt families**. The plan calls for **20 pair-context cases** and **60 judgments** across three reviewers. The [roadmap issue](https://github.com/92meharali/anthropomorphic-ai-harness-engineering/issues/1) tracks selection, matched edits, and the blinded annotation packet.
+The [wording dataset](data/wording_pairs_v1.jsonl) contains **60 distinct prompt families, 100 paired cases across contexts, and 200 candidate trials**. The prompts and responses are newly authored adaptations of unused PERSONA scenarios. [Dataset handoff](data/README.md) explains how to prepare a blinded review packet, dry-run the full batch, and import human ratings.
 
-The original PERSONA corpus and earlier review files are in the local research archive. Use the [wording study runbook](docs/WORDING_HARNESS.md) to prepare and score the new batch locally.
+Use the [three synthetic examples](examples/wording_pairs.jsonl) below for a quick smoke check. The [roadmap issue](https://github.com/92meharali/anthropomorphic-ai-harness-engineering/issues/1) tracks content review, annotation, and implementation of the cue policy.
 
 ## Run the offline example
 
