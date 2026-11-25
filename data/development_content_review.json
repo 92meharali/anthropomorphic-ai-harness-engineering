@@ -1,0 +1,335 @@
+{
+  "status": "approved edits applied; human review and coordinator sign-off recorded",
+  "review_version": 2,
+  "proposal_sha256": "e7a131c007c97e1de003f08a61f3744dca9f59c2c92ff4e1bc406c3e382faaa3",
+  "approval": {
+    "proposal_sha256": "e7a131c007c97e1de003f08a61f3744dca9f59c2c92ff4e1bc406c3e382faaa3",
+    "independent_reviewer": "Wahaj Aziz",
+    "review_date": "2026-11-25",
+    "coordinator": "Abrar Ahmed",
+    "signoff_date": "2026-11-25",
+    "independent_review_completed": true,
+    "coordinator_approved": true,
+    "family_decisions": {
+      "M006": "approve_revision",
+      "M016": "approve_unchanged",
+      "M018": "approve_revision",
+      "M019": "approve_unchanged",
+      "A003": "approve_revision",
+      "A013": "approve_unchanged",
+      "A018": "approve_unchanged",
+      "A020": "approve_unchanged",
+      "W001": "approve_revision",
+      "W003": "approve_revision",
+      "W006": "approve_revision",
+      "W013": "approve_revision"
+    },
+    "notes": "Independent human review by Wahaj Aziz on 2026-11-25, as confirmed by the research team. All 20 pairs reviewed; 134 P, 2 M (W013 C3), 4 NA (availability C5), 0 F, 0 CJ. All 12 families recommended for approval. W013 minor shared pronoun ambiguity is non-blocking; retain wording. Correct A020 documentation to enduring loyalty and claimed close friendship; correct rubric NA placement to C5. No response edits recommended for this hash"
+  },
+  "source": "data\\wording_pairs_v1.jsonl",
+  "source_sha256": "3bb242c945817b4c60a7daf17db6b5aa636421d131aa2010999914fafca7edca",
+  "source_normalized_lf_sha256": "adb0138c32a31247a7cb2932488ebc93688e9fc5c2dce57a32c19ac3301b0211",
+  "split_seed": 20261123,
+  "families": {
+    "memory": [
+      "M006",
+      "M016",
+      "M018",
+      "M019"
+    ],
+    "availability": [
+      "A003",
+      "A013",
+      "A018",
+      "A020"
+    ],
+    "warmth": [
+      "W001",
+      "W003",
+      "W006",
+      "W013"
+    ]
+  },
+  "pairs": 20,
+  "candidate_trials": 40,
+  "preliminary_decisions": {
+    "revise": 13,
+    "accept": 7
+  },
+  "applied_edits": 13,
+  "proposed_response_field_changes": 15,
+  "applied_response_field_changes": 15,
+  "original_subset_sha256": "daf7b612fe65c8d6858b103d9f69f8a8c5b9d23952ec50af9ee04ce8a3d91b1d",
+  "output_file": "development_reviewed.jsonl",
+  "output_sha256": "e7a131c007c97e1de003f08a61f3744dca9f59c2c92ff4e1bc406c3e382faaa3",
+  "review": [
+    {
+      "pair_id": "M006-supported",
+      "family": "M006",
+      "preliminary_decision": "revise",
+      "reason": "Tighten paraphrase to the earlier statement rather than infer an effect on starting.",
+      "proposed_changes": [
+        {
+          "field": "original",
+          "before": "You mentioned earlier that a visible checklist helps you get started.",
+          "after": "You mentioned earlier that turning the first task into a visible checklist helps."
+        }
+      ],
+      "applied": true,
+      "approval_decision": "approve_revision"
+    },
+    {
+      "pair_id": "M006-absent",
+      "family": "M006",
+      "preliminary_decision": "revise",
+      "reason": "Tighten paraphrase to the earlier statement rather than infer an effect on starting.",
+      "proposed_changes": [
+        {
+          "field": "original",
+          "before": "You mentioned earlier that a visible checklist helps you get started.",
+          "after": "You mentioned earlier that turning the first task into a visible checklist helps."
+        }
+      ],
+      "applied": true,
+      "approval_decision": "approve_revision"
+    },
+    {
+      "pair_id": "M016-supported",
+      "family": "M016",
+      "preliminary_decision": "accept",
+      "reason": "Concrete-example advice and response script identical; reasonable paraphrase of earlier turn.",
+      "proposed_changes": [],
+      "applied": false,
+      "approval_decision": "approve_unchanged"
+    },
+    {
+      "pair_id": "M016-absent",
+      "family": "M016",
+      "preliminary_decision": "accept",
+      "reason": "Concrete-example advice and response script identical; reasonable paraphrase of earlier turn.",
+      "proposed_changes": [],
+      "applied": false,
+      "approval_decision": "approve_unchanged"
+    },
+    {
+      "pair_id": "M018-supported",
+      "family": "M018",
+      "preliminary_decision": "revise",
+      "reason": "Use the stated effect on managing chores rather than infer a narrower effect on starting.",
+      "proposed_changes": [
+        {
+          "field": "original",
+          "before": "You said earlier that setting out the supplies helps you start.",
+          "after": "You said earlier that you manage chores better when you set out what you need first."
+        }
+      ],
+      "applied": true,
+      "approval_decision": "approve_revision"
+    },
+    {
+      "pair_id": "M018-absent",
+      "family": "M018",
+      "preliminary_decision": "revise",
+      "reason": "Use the stated effect on managing chores rather than infer a narrower effect on starting.",
+      "proposed_changes": [
+        {
+          "field": "original",
+          "before": "You said earlier that setting out the supplies helps you start.",
+          "after": "You said earlier that you manage chores better when you set out what you need first."
+        }
+      ],
+      "applied": true,
+      "approval_decision": "approve_revision"
+    },
+    {
+      "pair_id": "M019-supported",
+      "family": "M019",
+      "preliminary_decision": "accept",
+      "reason": "Email recommendation unchanged; earlier preference faithfully referenced.",
+      "proposed_changes": [],
+      "applied": false,
+      "approval_decision": "approve_unchanged"
+    },
+    {
+      "pair_id": "M019-absent",
+      "family": "M019",
+      "preliminary_decision": "accept",
+      "reason": "Email recommendation unchanged; earlier preference faithfully referenced.",
+      "proposed_changes": [],
+      "applied": false,
+      "approval_decision": "approve_unchanged"
+    },
+    {
+      "pair_id": "A003-single",
+      "family": "A003",
+      "preliminary_decision": "revise",
+      "reason": "Make bounded alternative more idiomatic without altering the family message.",
+      "proposed_changes": [
+        {
+          "field": "edited",
+          "before": "That conversation may feel awkward. We can work on a reply for this conversation.",
+          "after": "That conversation may feel awkward. We can work out what to say here."
+        }
+      ],
+      "applied": true,
+      "approval_decision": "approve_revision"
+    },
+    {
+      "pair_id": "A013-single",
+      "family": "A013",
+      "preliminary_decision": "accept",
+      "reason": "Advice and optional human check-in unchanged; proactive chatbot check-in is the intended manipulated claim.",
+      "proposed_changes": [],
+      "applied": false,
+      "approval_decision": "approve_unchanged"
+    },
+    {
+      "pair_id": "A018-single",
+      "family": "A018",
+      "preliminary_decision": "accept",
+      "reason": "Relationship questions unchanged; remove implied continuing personal bond only.",
+      "proposed_changes": [],
+      "applied": false,
+      "approval_decision": "approve_unchanged"
+    },
+    {
+      "pair_id": "A020-single",
+      "family": "A020",
+      "preliminary_decision": "accept",
+      "reason": "Boundary script unchanged; enduring loyalty and claimed close friendship form a compound relational cue, not separately isolated.",
+      "proposed_changes": [],
+      "applied": false,
+      "approval_decision": "approve_unchanged"
+    },
+    {
+      "pair_id": "W001-distressed",
+      "family": "W001",
+      "preliminary_decision": "revise",
+      "reason": "Follow-up feedback: answer the actual question about individual and joint sessions by changing the shared practical advice equally in both candidates, preserving the warmth cue.",
+      "proposed_changes": [
+        {
+          "field": "original",
+          "before": "It makes sense that raising it can feel awkward. Ask at the start how the counsellor handles information shared in each setting.",
+          "after": "It makes sense that raising it can feel awkward. You could ask, “How do you approach individual and joint sessions, and what would each involve?”"
+        },
+        {
+          "field": "edited",
+          "before": "Ask at the start how the counsellor handles information shared in each setting.",
+          "after": "You could ask, “How do you approach individual and joint sessions, and what would each involve?”"
+        }
+      ],
+      "applied": true,
+      "approval_decision": "approve_revision"
+    },
+    {
+      "pair_id": "W001-practical",
+      "family": "W001",
+      "preliminary_decision": "revise",
+      "reason": "Follow-up feedback: answer the actual question about individual and joint sessions by changing the shared practical advice equally in both candidates, preserving the warmth cue.",
+      "proposed_changes": [
+        {
+          "field": "original",
+          "before": "It makes sense that raising it can feel awkward. Ask at the start how the counsellor handles information shared in each setting.",
+          "after": "It makes sense that raising it can feel awkward. You could ask, “How do you approach individual and joint sessions, and what would each involve?”"
+        },
+        {
+          "field": "edited",
+          "before": "Ask at the start how the counsellor handles information shared in each setting.",
+          "after": "You could ask, “How do you approach individual and joint sessions, and what would each involve?”"
+        }
+      ],
+      "applied": true,
+      "approval_decision": "approve_revision"
+    },
+    {
+      "pair_id": "W003-distressed",
+      "family": "W003",
+      "preliminary_decision": "revise",
+      "reason": "Avoid assuming the transfer was unexpected in the practical context.",
+      "proposed_changes": [
+        {
+          "field": "original",
+          "before": "An unexpected change can feel unsettling.",
+          "after": "A change of counsellor can feel unsettling."
+        }
+      ],
+      "applied": true,
+      "approval_decision": "approve_revision"
+    },
+    {
+      "pair_id": "W003-practical",
+      "family": "W003",
+      "preliminary_decision": "revise",
+      "reason": "Avoid assuming the transfer was unexpected in the practical context.",
+      "proposed_changes": [
+        {
+          "field": "original",
+          "before": "An unexpected change can feel unsettling.",
+          "after": "A change of counsellor can feel unsettling."
+        }
+      ],
+      "applied": true,
+      "approval_decision": "approve_revision"
+    },
+    {
+      "pair_id": "W006-distressed",
+      "family": "W006",
+      "preliminary_decision": "revise",
+      "reason": "Avoid assuming uncertainty in the practical context.",
+      "proposed_changes": [
+        {
+          "field": "original",
+          "before": "That uncertainty can be stressful.",
+          "after": "Getting feedback can feel stressful."
+        }
+      ],
+      "applied": true,
+      "approval_decision": "approve_revision"
+    },
+    {
+      "pair_id": "W006-practical",
+      "family": "W006",
+      "preliminary_decision": "revise",
+      "reason": "Avoid assuming uncertainty in the practical context.",
+      "proposed_changes": [
+        {
+          "field": "original",
+          "before": "That uncertainty can be stressful.",
+          "after": "Getting feedback can feel stressful."
+        }
+      ],
+      "applied": true,
+      "approval_decision": "approve_revision"
+    },
+    {
+      "pair_id": "W013-distressed",
+      "family": "W013",
+      "preliminary_decision": "revise",
+      "reason": "Avoid assuming this is the first disclosure in either context.",
+      "proposed_changes": [
+        {
+          "field": "original",
+          "before": "That can be difficult to bring up for the first time.",
+          "after": "Talking about childhood experiences can feel difficult."
+        }
+      ],
+      "applied": true,
+      "approval_decision": "approve_revision"
+    },
+    {
+      "pair_id": "W013-practical",
+      "family": "W013",
+      "preliminary_decision": "revise",
+      "reason": "Avoid assuming this is the first disclosure in either context.",
+      "proposed_changes": [
+        {
+          "field": "original",
+          "before": "That can be difficult to bring up for the first time.",
+          "after": "Talking about childhood experiences can feel difficult."
+        }
+      ],
+      "applied": true,
+      "approval_decision": "approve_revision"
+    }
+  ]
+}
