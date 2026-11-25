@@ -1,0 +1,126 @@
+{
+  "version": 1,
+  "status": "development allocation proposed for repository commit",
+  "source": "data/wording_pairs_v1.jsonl",
+  "source_sha256": "adb0138c32a31247a7cb2932488ebc93688e9fc5c2dce57a32c19ac3301b0211",
+  "source_git_blob": "2f0d703f61058e48f02d085f0bbb9563aa07fcbb",
+  "selection": {
+    "method": "stratified random sampling without replacement; Python random.Random(seed).sample(sorted_family_ids, 4); category order memory, availability, warmth; sort selected IDs after sampling",
+    "seed": 20261123,
+    "seed_rationale": "Reuse the existing wording harness default seed; no model scores or human ratings used for selection."
+  },
+  "development_families": {
+    "memory": [
+      "M006",
+      "M016",
+      "M018",
+      "M019"
+    ],
+    "availability": [
+      "A003",
+      "A013",
+      "A018",
+      "A020"
+    ],
+    "warmth": [
+      "W001",
+      "W003",
+      "W006",
+      "W013"
+    ]
+  },
+  "reserved_families": {
+    "memory": [
+      "M001",
+      "M002",
+      "M003",
+      "M004",
+      "M005",
+      "M007",
+      "M008",
+      "M009",
+      "M010",
+      "M011",
+      "M012",
+      "M013",
+      "M014",
+      "M015",
+      "M017",
+      "M020"
+    ],
+    "availability": [
+      "A001",
+      "A002",
+      "A004",
+      "A005",
+      "A006",
+      "A007",
+      "A008",
+      "A009",
+      "A010",
+      "A011",
+      "A012",
+      "A014",
+      "A015",
+      "A016",
+      "A017",
+      "A019"
+    ],
+    "warmth": [
+      "W002",
+      "W004",
+      "W005",
+      "W007",
+      "W008",
+      "W009",
+      "W010",
+      "W011",
+      "W012",
+      "W014",
+      "W015",
+      "W016",
+      "W017",
+      "W018",
+      "W019",
+      "W020"
+    ]
+  },
+  "development_pair_ids": [
+    "M006-supported",
+    "M006-absent",
+    "M016-supported",
+    "M016-absent",
+    "M018-supported",
+    "M018-absent",
+    "M019-supported",
+    "M019-absent",
+    "A003-single",
+    "A013-single",
+    "A018-single",
+    "A020-single",
+    "W001-distressed",
+    "W001-practical",
+    "W003-distressed",
+    "W003-practical",
+    "W006-distressed",
+    "W006-practical",
+    "W013-distressed",
+    "W013-practical"
+  ],
+  "counts": {
+    "development_families": 12,
+    "development_pairs": 20,
+    "development_candidate_trials": 40,
+    "planned_reviewers": 3,
+    "planned_pair_judgments": 60,
+    "reserved_families": 48,
+    "reserved_pairs": 80,
+    "reserved_candidate_trials": 160
+  },
+  "notes": [
+    "Keep all contexts and response variants in the same split.",
+    "Reserved families are not a finalized held-out evaluation set.",
+    "Review content before preparing the blinded packet. Record any edits and rebuild the packet.",
+    "No scores or human judgments consulted during allocation."
+  ]
+}
