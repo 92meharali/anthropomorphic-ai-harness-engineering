@@ -1,0 +1,38 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "status": {"type": "string", "enum": ["ok", "cannot_judge"]},
+    "reason": {"type": "string"},
+    "cues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "cue_type": {"type": "string", "enum": ["memory", "availability", "warmth"]},
+          "span": {"type": "string"},
+          "occurrence": {"type": "integer"},
+          "implied_claim": {"type": "string"},
+          "evidence_status": {"type": "string", "enum": ["supported", "unsupported", "unclear"]},
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "source": {"type": "string", "enum": ["history", "current_user", "capability", "role"]},
+                "reference": {"type": "string"},
+                "quote": {"type": ["string", "null"]}
+              },
+              "required": ["source", "reference", "quote"]
+            }
+          },
+          "reason": {"type": "string"}
+        },
+        "required": ["cue_type", "span", "occurrence", "implied_claim", "evidence_status", "evidence", "reason"]
+      }
+    }
+  },
+  "required": ["status", "reason", "cues"]
+}
