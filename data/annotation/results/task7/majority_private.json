@@ -1,0 +1,422 @@
+[
+  {
+    "review_id": "W0001",
+    "pair_sha256": "e78df1d4c7996f2b03e9160857f9d60c7f9c81fb3262694d055910fff077995e",
+    "majority": {
+      "preference": {
+        "has_majority": true,
+        "value": "B",
+        "votes": 3
+      },
+      "cue_needs_correction": {
+        "has_majority": true,
+        "value": "A",
+        "votes": 3
+      },
+      "content_preserved": {
+        "has_majority": true,
+        "value": true,
+        "votes": 3
+      }
+    }
+  },
+  {
+    "review_id": "W0002",
+    "pair_sha256": "727a1d9b47ba41f6cd33ae9380a54f6b9439d8556da2d630b6d0000f6df8fe02",
+    "majority": {
+      "preference": {
+        "has_majority": true,
+        "value": "B",
+        "votes": 3
+      },
+      "cue_needs_correction": {
+        "has_majority": true,
+        "value": "A",
+        "votes": 3
+      },
+      "content_preserved": {
+        "has_majority": true,
+        "value": true,
+        "votes": 3
+      }
+    }
+  },
+  {
+    "review_id": "W0003",
+    "pair_sha256": "5447d0190c578d58a6dca6c41bbad8b2338f84a3d72479221aa49aafd39ac94a",
+    "majority": {
+      "preference": {
+        "has_majority": true,
+        "value": "A",
+        "votes": 3
+      },
+      "cue_needs_correction": {
+        "has_majority": true,
+        "value": "neither",
+        "votes": 3
+      },
+      "content_preserved": {
+        "has_majority": true,
+        "value": true,
+        "votes": 3
+      }
+    }
+  },
+  {
+    "review_id": "W0004",
+    "pair_sha256": "48cbe9c8b7ff5a7c432a0525a8bf0c1882c53321c30716ebb83e882a7913ad29",
+    "majority": {
+      "preference": {
+        "has_majority": true,
+        "value": "B",
+        "votes": 3
+      },
+      "cue_needs_correction": {
+        "has_majority": true,
+        "value": "A",
+        "votes": 3
+      },
+      "content_preserved": {
+        "has_majority": true,
+        "value": true,
+        "votes": 3
+      }
+    }
+  },
+  {
+    "review_id": "W0005",
+    "pair_sha256": "4f83f968979ccf690f65d79c37e5e1bd9832671941a488e72fbb2909d349647e",
+    "majority": {
+      "preference": {
+        "has_majority": true,
+        "value": "A",
+        "votes": 3
+      },
+      "cue_needs_correction": {
+        "has_majority": true,
+        "value": "B",
+        "votes": 3
+      },
+      "content_preserved": {
+        "has_majority": true,
+        "value": true,
+        "votes": 3
+      }
+    }
+  },
+  {
+    "review_id": "W0006",
+    "pair_sha256": "decfe90e8c987e0773cb6f35a0f35bad4829533fc168ec821695b463865eea6a",
+    "majority": {
+      "preference": {
+        "has_majority": true,
+        "value": "B",
+        "votes": 3
+      },
+      "cue_needs_correction": {
+        "has_majority": true,
+        "value": "neither",
+        "votes": 3
+      },
+      "content_preserved": {
+        "has_majority": true,
+        "value": true,
+        "votes": 3
+      }
+    }
+  },
+  {
+    "review_id": "W0007",
+    "pair_sha256": "9cdf4c48856194c21c3708027faba1f6ebac5040229fcfb4e22e6277c189717a",
+    "majority": {
+      "preference": {
+        "has_majority": true,
+        "value": "B",
+        "votes": 3
+      },
+      "cue_needs_correction": {
+        "has_majority": true,
+        "value": "A",
+        "votes": 3
+      },
+      "content_preserved": {
+        "has_majority": true,
+        "value": true,
+        "votes": 3
+      }
+    }
+  },
+  {
+    "review_id": "W0008",
+    "pair_sha256": "82806e136ee7a52200b029c0350ea9de8ab92c568c666d168e67e7f3adfc9c2b",
+    "majority": {
+      "preference": {
+        "has_majority": true,
+        "value": "B",
+        "votes": 3
+      },
+      "cue_needs_correction": {
+        "has_majority": true,
+        "value": "neither",
+        "votes": 3
+      },
+      "content_preserved": {
+        "has_majority": true,
+        "value": true,
+        "votes": 3
+      }
+    }
+  },
+  {
+    "review_id": "W0009",
+    "pair_sha256": "4946eac500ee4b88ef9b1a9c5b3d40289411a963ccb5aebbda644dc13beace93",
+    "majority": {
+      "preference": {
+        "has_majority": true,
+        "value": "B",
+        "votes": 3
+      },
+      "cue_needs_correction": {
+        "has_majority": true,
+        "value": "A",
+        "votes": 3
+      },
+      "content_preserved": {
+        "has_majority": true,
+        "value": true,
+        "votes": 3
+      }
+    }
+  },
+  {
+    "review_id": "W0010",
+    "pair_sha256": "29c07b3c6fe05a8b915b3cacf6a16b34812a327db8c59b75a53fa17974d83f1c",
+    "majority": {
+      "preference": {
+        "has_majority": true,
+        "value": "B",
+        "votes": 3
+      },
+      "cue_needs_correction": {
+        "has_majority": true,
+        "value": "neither",
+        "votes": 3
+      },
+      "content_preserved": {
+        "has_majority": true,
+        "value": true,
+        "votes": 3
+      }
+    }
+  },
+  {
+    "review_id": "W0011",
+    "pair_sha256": "d9b0e59601570de855b22671bb2927c58c1b6b034db27722dbd24d7780ade726",
+    "majority": {
+      "preference": {
+        "has_majority": true,
+        "value": "tie",
+        "votes": 2
+      },
+      "cue_needs_correction": {
+        "has_majority": true,
+        "value": "neither",
+        "votes": 3
+      },
+      "content_preserved": {
+        "has_majority": true,
+        "value": true,
+        "votes": 3
+      }
+    }
+  },
+  {
+    "review_id": "W0012",
+    "pair_sha256": "61242917613a2f50653a39b801bfd24faf1954b06078bcc71722f3a4da38d361",
+    "majority": {
+      "preference": {
+        "has_majority": true,
+        "value": "A",
+        "votes": 3
+      },
+      "cue_needs_correction": {
+        "has_majority": true,
+        "value": "neither",
+        "votes": 3
+      },
+      "content_preserved": {
+        "has_majority": true,
+        "value": true,
+        "votes": 3
+      }
+    }
+  },
+  {
+    "review_id": "W0013",
+    "pair_sha256": "69fca3895d04b03e8d82056eeb6fcf2522ab0786caac017b75b7192efc4d597b",
+    "majority": {
+      "preference": {
+        "has_majority": true,
+        "value": "B",
+        "votes": 3
+      },
+      "cue_needs_correction": {
+        "has_majority": true,
+        "value": "neither",
+        "votes": 3
+      },
+      "content_preserved": {
+        "has_majority": true,
+        "value": true,
+        "votes": 3
+      }
+    }
+  },
+  {
+    "review_id": "W0014",
+    "pair_sha256": "fb12f592727626a8fe3e967a98654301058fe40ab5ec0296072a93d48299f0e5",
+    "majority": {
+      "preference": {
+        "has_majority": true,
+        "value": "B",
+        "votes": 3
+      },
+      "cue_needs_correction": {
+        "has_majority": true,
+        "value": "neither",
+        "votes": 3
+      },
+      "content_preserved": {
+        "has_majority": true,
+        "value": true,
+        "votes": 3
+      }
+    }
+  },
+  {
+    "review_id": "W0015",
+    "pair_sha256": "a2256b45ad98637f320d551b2b978d294d9bcc634407a1854d8c2386c9277452",
+    "majority": {
+      "preference": {
+        "has_majority": true,
+        "value": "B",
+        "votes": 3
+      },
+      "cue_needs_correction": {
+        "has_majority": true,
+        "value": "A",
+        "votes": 3
+      },
+      "content_preserved": {
+        "has_majority": true,
+        "value": true,
+        "votes": 3
+      }
+    }
+  },
+  {
+    "review_id": "W0016",
+    "pair_sha256": "4b056bc1cd36b6b676f0d8518a5c4dca6655b0e1f66754c86c0f9769b6e75f2c",
+    "majority": {
+      "preference": {
+        "has_majority": true,
+        "value": "A",
+        "votes": 3
+      },
+      "cue_needs_correction": {
+        "has_majority": true,
+        "value": "neither",
+        "votes": 3
+      },
+      "content_preserved": {
+        "has_majority": true,
+        "value": true,
+        "votes": 3
+      }
+    }
+  },
+  {
+    "review_id": "W0017",
+    "pair_sha256": "a7540d22cfa0678b90d1101860a780286ffd764e79171ae378083dfa03638135",
+    "majority": {
+      "preference": {
+        "has_majority": true,
+        "value": "B",
+        "votes": 3
+      },
+      "cue_needs_correction": {
+        "has_majority": true,
+        "value": "neither",
+        "votes": 3
+      },
+      "content_preserved": {
+        "has_majority": true,
+        "value": true,
+        "votes": 3
+      }
+    }
+  },
+  {
+    "review_id": "W0018",
+    "pair_sha256": "db04795d0def97db54540bc7b3c357967bfe1983fcde418afecdd622349c0a39",
+    "majority": {
+      "preference": {
+        "has_majority": true,
+        "value": "B",
+        "votes": 3
+      },
+      "cue_needs_correction": {
+        "has_majority": true,
+        "value": "A",
+        "votes": 3
+      },
+      "content_preserved": {
+        "has_majority": true,
+        "value": true,
+        "votes": 3
+      }
+    }
+  },
+  {
+    "review_id": "W0019",
+    "pair_sha256": "c119ab8ff1587e8be7bad77e3bb569abebff05fb51cf2a8ee07886fafbd70447",
+    "majority": {
+      "preference": {
+        "has_majority": true,
+        "value": "B",
+        "votes": 2
+      },
+      "cue_needs_correction": {
+        "has_majority": true,
+        "value": "neither",
+        "votes": 3
+      },
+      "content_preserved": {
+        "has_majority": true,
+        "value": true,
+        "votes": 3
+      }
+    }
+  },
+  {
+    "review_id": "W0020",
+    "pair_sha256": "5ed563fa7510bc99139291e006b6fd372e372ea0f361a96afe60dac8e6275567",
+    "majority": {
+      "preference": {
+        "has_majority": true,
+        "value": "B",
+        "votes": 3
+      },
+      "cue_needs_correction": {
+        "has_majority": true,
+        "value": "neither",
+        "votes": 3
+      },
+      "content_preserved": {
+        "has_majority": true,
+        "value": true,
+        "votes": 3
+      }
+    }
+  }
+]
