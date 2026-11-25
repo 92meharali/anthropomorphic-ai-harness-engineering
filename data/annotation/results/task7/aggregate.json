@@ -1,0 +1,48 @@
+{
+  "provenance": "unverified; descriptive submission agreement only",
+  "cases": 20,
+  "reviewers": 3,
+  "metrics": {
+    "preference": {
+      "unanimous_cases": 18,
+      "cases": 20,
+      "rating_counts": {
+        "A": 13,
+        "B": 44,
+        "tie": 3,
+        "cannot_judge": 0
+      },
+      "observed_pairwise_agreement": 0.9333333333333333,
+      "expected_agreement": 0.5872222222222221,
+      "fleiss_kappa": 0.838492597577389
+    },
+    "cue_needs_correction": {
+      "unanimous_cases": 20,
+      "cases": 20,
+      "rating_counts": {
+        "A": 21,
+        "B": 3,
+        "both": 0,
+        "neither": 36,
+        "cannot_judge": 0
+      },
+      "observed_pairwise_agreement": 1.0,
+      "expected_agreement": 0.485,
+      "fleiss_kappa": 1.0
+    },
+    "content_preserved": {
+      "unanimous_cases": 20,
+      "cases": 20,
+      "rating_counts": {
+        "true": 60,
+        "false": 0,
+        "null": 0
+      },
+      "observed_pairwise_agreement": 1.0,
+      "expected_agreement": 1.0,
+      "fleiss_kappa": null
+    }
+  },
+  "unanimous_case_question_combinations": 58,
+  "case_question_combinations": 60
+}
