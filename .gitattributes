@@ -1,1 +1,2 @@
 data/development_reviewed.jsonl text eol=lf
+data/annotation/** -text
