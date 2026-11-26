@@ -25,7 +25,7 @@ def indexed(rows, field):
     return result
 
 
-def prepare(source, protocol, directory, seed):
+def prepare(source, protocol, directory, seed, *, separate_families=False):
     pairs = list(indexed(read_jsonl(source), 'pair_id').values())
     if not pairs:
         raise ValueError('At least one pair is required')
@@ -34,7 +34,13 @@ def prepare(source, protocol, directory, seed):
         raise ValueError('Expected the OA-only protocol')
 
     rng = random.Random(seed)
-    rng.shuffle(pairs)
+    for _ in range(1000):
+        rng.shuffle(pairs)
+        if not separate_families or all(a['prompt_group_id'] != b['prompt_group_id']
+                                        for a, b in zip(pairs, pairs[1:])):
+            break
+    else:
+        raise ValueError('Could not separate sibling contexts')
     packet, inputs, key = [], [], []
     prompt_groups = {}
     for number, pair in enumerate(pairs, 1):
@@ -69,6 +75,7 @@ def prepare(source, protocol, directory, seed):
         'version': 1, 'seed': seed, 'model': MODEL, 'pairs': len(pairs),
         'humt_baseline': 'prefer_lower', 'oa_baseline': 'prefer_higher',
         'source_sha256': digest(source.read_bytes()),
+        **({'separate_families': True} if separate_families else {}),
         'sha256': {name: digest((directory / name).read_bytes()) for name in FILES},
     })
 
