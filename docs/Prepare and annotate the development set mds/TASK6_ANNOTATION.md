@@ -30,29 +30,18 @@ The three JSONL files use `review_id`, `pair_sha256`, `preference`, `cue_needs_c
 
 ## Reproduction (PowerShell, repository root)
 
-The blank template is located at `data/annotation/annotator/Development_Annotation_Sheet.xlsx`. Place only the three current completed workbooks in `data/annotation/annotator/completed/` with their original filenames. Retain the original submissions separately and preserve their exact bytes. If publication requires metadata redaction, keep the unmodified originals privately, document the redaction, and revalidate the publication copies. Run:
+The blank template is located at `data/annotation/annotator/Development_Annotation_Sheet.xlsx`. Place only the three current completed workbooks in `private/task6-human-annotations/raw/` with their original filenames. Retain the original submissions separately and preserve their exact bytes. If publication requires metadata redaction, keep the unmodified originals privately, document the redaction, and revalidate the publication copies. Run:
 
 ```powershell
 $env:PYTHONUTF8 = "1"
-python validate_task6.py --study private/task5-study-v1 --source data/development_reviewed.jsonl --raw data/annotation/annotator/completed --out private/task6-human-annotations/validated
+python validate_task6.py --study private/task5-study-v1 --source data/development_reviewed.jsonl --raw private/task6-human-annotations/raw --out private/task6-human-annotations/validated
 ```
 
 Expected: three JSONL ballots and `validation.json` in the new output directory. The conversion does not adjudicate any answer. If the folder already exists, retain the existing snapshot and verify it rather than overwriting it.
 
-## Repository submission and data handling
+## Data handling
 
-The Task 6 submission includes the blank annotation template, three completed pseudonymized annotation workbooks, validation utility and this methodology document. Publishing the workbook materials is intended to support transparency and inspection of the submitted judgments. Public release is conditional on confirming that consent and applicable research ethics requirements permit publication of individual ratings, and on checking the workbooks for identifying information (including document properties, comments and hidden content). These checks are the coordinator's responsibility and are not established by the technical validator.
-
-| Repository path | Purpose |
-| --- | --- |
-| `validate_task6.py` | Workbook validation and JSONL conversion utility. |
-| `docs/Prepare and annotate the development set mds/TASK6_ANNOTATION.md` | Task 6 collection and validation documentation. |
-| `data/annotation/annotator/Development_Annotation_Sheet.xlsx` | Blank annotation template. |
-| `data/annotation/annotator/completed/Development_Annotation_Sheet_R01.xlsx` | First completed workbook. |
-| `data/annotation/annotator/completed/Development_Annotation_Sheet_R02.xlsx` | Second completed workbook. |
-| `data/annotation/annotator/completed/Development_Annotation_Sheet_R03.xlsx` | Third completed workbook. |
-
-The original submissions are retained privately and unchanged. The internal A/B mapping, coordinator manifest, OA scoring inputs, individual converted JSONL ballots, validation report and personal reviewer records remain outside the public repository. The workbook materials contain the displayed cases and integrity hashes, not the explicit original/edited mapping. Keep any future blinded annotation cohort isolated from these published materials. Publication is not a guarantee against reconstruction of candidate identities from other research materials.
+The repository includes the blank workbook and validator. Keep completed workbooks, converted ballots, validation records and reviewer metadata in restricted research storage. The validator checks exact case text and ballot integrity. Source files and hashes do not establish consent, human authorship or reviewer independence.
 
 ## Completion and handoff
 
