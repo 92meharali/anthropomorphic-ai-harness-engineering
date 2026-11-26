@@ -10,10 +10,14 @@ import re
 
 from . import cue_output as cue, pair_judge as pair_judge
 
-VERSION = 'cue-routing-v2'
+VERSION = 'cue-routing-v3'
 OA_MINIMUM = 4  # same gate as the existing evaluation/controller.py
 PREVIOUS_SESSION = re.compile(
-    r'\b(?:another|different|previous|prior|past|earlier)\s+(?:chat|session|conversation)\b',
+    r'\b(?:another|different|separate|previous|prior|past)\s+(?:chat|session|conversation)\b',
+    re.IGNORECASE,
+)
+CURRENT_SESSION = re.compile(
+    r'\b(?:this|current|same)\s+(?:chat|session|conversation)\b',
     re.IGNORECASE,
 )
 
@@ -98,7 +102,9 @@ def validate_evidence(result, state):
         if kind == 'memory' and status == 'unsupported':
             # An exact quotation does not establish a contradiction. Without a
             # complete current transcript, only reject an explicit prior-session claim.
-            cross_session = inaccessible_session and PREVIOUS_SESSION.search(item['span'])
+            span = item['span']
+            cross_session = (inaccessible_session and PREVIOUS_SESSION.search(span)
+                             and not CURRENT_SESSION.search(span))
             no_source = complete_basis and not caps['can_access_prior_sessions']
             if not (cross_session or no_source):
                 raise ValueError('Unsupported memory lacks a complete or explicit cross-session basis')
