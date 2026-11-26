@@ -6,8 +6,8 @@ For example, “You mentioned earlier that writing things down helps” fits whe
 
 ## Current status
 
-- **Available:** the OA runner and protocol, single-revision OA controller, and offline harness that freezes wording pairs, blinds reviewers, and compares saved scores with human preferences.
-- **Next:** implement the cue detector, evidence checks and keep/edit/hold policy. Then test them against frozen OA and a HumT baseline on the same response pairs.
+- **Available:** the OA runner and protocol, single-revision OA controller, and cue-aware harness with evidence checks, keep/edit/hold routing and a separate OA gate.
+- **Held-out comparison:** the full harness matched the submitted majority preference on 80/80 fixed pairs. The direct pairwise judge matched 64/80 and frozen OA matched 33/80. The [provisional results](docs/WORDING_RESULTS.md) describe the strengths and limits. Rating provenance and the HumT baseline remain pending.
 
 | Completed pilot | Result |
 |---|---|
@@ -20,7 +20,7 @@ The 58 human-revise responses in the 120-case test were constructed. The control
 
 The [wording dataset](data/wording_pairs_v1.jsonl) contains **60 distinct prompt families, 100 paired cases across contexts, and 200 candidate trials**. The prompts and responses are newly authored adaptations of unused PERSONA scenarios. [Dataset handoff](data/README.md) explains how to prepare a blinded review packet, dry-run the full batch, and import human ratings.
 
-Use the [three synthetic examples](examples/wording_pairs.jsonl) below for a quick smoke check. The [roadmap issue](https://github.com/92meharali/anthropomorphic-ai-harness-engineering/issues/1) tracks content review, annotation, and implementation of the cue policy.
+Use the [three synthetic examples](examples/wording_pairs.jsonl) below for a quick smoke check. The [roadmap issue](https://github.com/92meharali/anthropomorphic-ai-harness-engineering/issues/1) tracks the remaining evaluation work.
 
 ## Run the offline example
 
@@ -44,6 +44,7 @@ The first command checks the local software. Preparation writes a blinded A/B pa
 - [Study design, architecture and execution plan](docs/CUE_HARNESS_STUDY.md)
 - [Harness engineering and related work](docs/HARNESS_ENGINEERING.md)
 - [Wording study runbook](docs/WORDING_HARNESS.md)
+- [Held-out wording results](docs/WORDING_RESULTS.md)
 
 Keep study inputs, generated packets, annotation submissions, scoring logs and API keys in ignored local directories. The historical workspace preserves earlier pilot scripts and artifacts.
 
