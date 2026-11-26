@@ -6,11 +6,16 @@ Reference validation is mechanical, not proof of semantic entailment.
 """
 from copy import deepcopy
 import json
+import re
 
 from . import cue_output as cue, pair_judge as pair_judge
 
-VERSION = 'cue-routing-v1'
+VERSION = 'cue-routing-v2'
 OA_MINIMUM = 4  # same gate as the existing evaluation/controller.py
+PREVIOUS_SESSION = re.compile(
+    r'\b(?:another|different|previous|prior|past|earlier)\s+(?:chat|session|conversation)\b',
+    re.IGNORECASE,
+)
 
 
 def _occurrences(text, span):
@@ -90,9 +95,13 @@ def validate_evidence(result, state):
         status, kind = item['evidence_status'], item['cue_type']
         if kind == 'memory' and status == 'supported' and not user_evidence:
             raise ValueError('Supported memory requires displayed user evidence')
-        if kind == 'memory' and status == 'unsupported' and not (
-                user_evidence or complete_basis or inaccessible_session):
-            raise ValueError('Unsupported memory lacks a complete-history or contradiction basis')
+        if kind == 'memory' and status == 'unsupported':
+            # An exact quotation does not establish a contradiction. Without a
+            # complete current transcript, only reject an explicit prior-session claim.
+            cross_session = inaccessible_session and PREVIOUS_SESSION.search(item['span'])
+            no_source = complete_basis and not caps['can_access_prior_sessions']
+            if not (cross_session or no_source):
+                raise ValueError('Unsupported memory lacks a complete or explicit cross-session basis')
         if kind == 'availability' and status == 'unsupported' and not (
                 unavailable_continuity or relationship_rule):
             raise ValueError('Unsupported availability requires relevant trusted role/capability evidence')

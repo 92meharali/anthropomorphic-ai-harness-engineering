@@ -153,14 +153,26 @@ class RoutingTests(unittest.TestCase):
         self.assertEqual(t['cue_decision']['action'], 'hold')
 
     def test_inaccessible_session_can_be_unsupported_without_history(self):
-        rec = record('I remember our chat last month. Try one minute.', 'Try one minute.')
-        c = item('memory', 'I remember our chat last month.', 'unsupported', [evidence('capability', 'can_access_prior_sessions')])
+        span = 'I remember what you said in a previous session.'
+        rec = record(span + ' Try one minute.', 'Try one minute.')
+        c = item('memory', span, 'unsupported', [evidence('capability', 'can_access_prior_sessions')])
         t, req, _ = self.route(rec, original_result=result(c), masked=True)
         self.assertEqual(t['cue_decision']['action'], 'edit')
         for _, request in req:
             self.assertNotIn('SECRET_PREVIOUS', json.dumps(request))
         guard = json.loads(req[-1][1]['input'][0]['content'])
         self.assertEqual(guard['prompt'], rec['current_user_message'])
+
+    def test_unavailable_prior_sessions_do_not_disprove_same_chat_memory(self):
+        span = 'You said a timer helps.'
+        rec = record(span + ' Try one minute.', 'Try one minute.')
+        for refs in ([evidence('capability', 'can_access_prior_sessions')],
+                     [evidence('current_user', cue.CURRENT_USER_REF, 'What can I try next?')]):
+            with self.subTest(refs=refs):
+                c = item('memory', span, 'unsupported', refs)
+                trace, _, calls = self.route(rec, original_result=result(c), masked=True)
+                self.assertEqual(trace['cue_decision']['action'], 'hold')
+                self.assertEqual(calls, [])
 
     def test_unresolved_cue_overrides_unsupported(self):
         c = item('availability', 'Ask a qualified professional', 'unclear', [])

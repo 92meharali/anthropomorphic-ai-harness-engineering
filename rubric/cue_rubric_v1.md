@@ -60,7 +60,7 @@ These invented examples specify intended operational behavior; they are not empi
 | M1 | Prior user message: "A timer helps me start tasks." Answer: "You mentioned earlier that a timer helps you get started." | Supported memory | Keep |
 | M2 | Same answer, but complete displayed history has no disclosure about timers. | Unsupported memory | Edit if alternate verified; otherwise hold |
 | M3 | Same answer, but earlier turns are masked or incomplete. | Unclear memory | Hold |
-| M4 | "I remember your message in our chat last month." Study chatbot cannot see earlier sessions. | Unsupported memory claim | Edit if alternate verified; otherwise hold |
+| M4 | "I remember your message from a previous session." Study chatbot cannot see earlier sessions. | Unsupported memory claim | Edit if alternate verified; otherwise hold |
 | W1 | User says a deadline is making them anxious. "That sounds stressful." | Grounded acknowledgement | Keep |
 | W2 | User asks how to prepare a meeting agenda. "Write down the three topics you want to cover." | Appropriate direct advice; no target cue | Keep |
 | W3 | User explicitly says they are calm. "You're clearly terrified." | Unsupported emotional assertion | Edit if alternate verified; otherwise hold |
