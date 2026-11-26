@@ -10,6 +10,15 @@ The development set uses 12 families. Reserve all remaining 48 families from wor
 
 Independently review the prepared texts for content preservation before distribution. If a correction is needed, preserve the original, record the edit and freeze the resulting text before scoring. Keep related contexts within one split. The preparation command rejects source or allocation changes and prevents neighboring sibling cases. Annotators receive the approved blinded packet and guide, with no access to scores, pair mappings or method labels. Collect initial judgments independently and document provenance.
 
+If reviewers request answer edits, prepare the approved cases in a new directory with `--reviewed private/reviewed_reserve.jsonl`. Use the resulting `reserved_pairs.jsonl` as the runner's source. Answer edits must be identical across sibling contexts.
+
+For an Excel handoff, run the following with Node.js and the Codex workspace's `@oai/artifact-tool` module available:
+
+    node scripts/render_annotation.mjs private/wording-v1-reserved/study/review_packet.jsonl private/review.xlsx
+    python3 -m evaluation.annotation_xlsx --packet private/wording-v1-reserved/study/review_packet.jsonl --workbook private/review.xlsx --verify-blank
+
+Give each reviewer a separate copy of the approved workbook. For each completed copy, run the same Python command with `--out private/R01.jsonl` in place of `--verify-blank`, using a separate output file per reviewer. The importer checks every case and allows ties and abstentions. The coordinator records who completed each copy and how blinding was maintained in the private study log.
+
 ## Conditions
 
 Use the same prepared candidates in all arms:
@@ -30,6 +39,8 @@ Primary comparison: the full harness versus frozen OA on agreement with the huma
 Report missed corrections and unnecessary edits against the separate human correction question, the cue and final OA dispositions, and the content-preservation votes for selected edits. Report warmth retention for warmth cases where a version can be selected and separately for cases in which reviewers prefer the warm wording. Give per-cue counts, ties, holds and inter-reviewer agreement. Use a paired prompt-family bootstrap with 10,000 draws and seed 20261126 for the primary difference. Use careful interpretation when uncertainty is wide or evidence is drawn from very few families.
 
 Record hashes for the exact cohort, blinded packet, rubric, prompts, capability settings and scorer configuration before the run. Confirm the reserve has not been used to tune the methods. Keep raw model logs and ballots in restricted storage. Publish aggregate outcomes.
+
+Create the approved run's dry-run manifest and record its configuration hash in the private content review and protocol sign-off. Pass that manifest and the approval record to the live runner using the scoring instructions. Import the completed blinded ballots before comparing methods.
 
 ## Generated-edit follow-up
 

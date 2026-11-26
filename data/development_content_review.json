@@ -4,9 +4,7 @@
   "proposal_sha256": "e7a131c007c97e1de003f08a61f3744dca9f59c2c92ff4e1bc406c3e382faaa3",
   "approval": {
     "proposal_sha256": "e7a131c007c97e1de003f08a61f3744dca9f59c2c92ff4e1bc406c3e382faaa3",
-    "independent_reviewer": "Wahaj Aziz",
     "review_date": "2026-11-25",
-    "coordinator": "Abrar Ahmed",
     "signoff_date": "2026-11-25",
     "independent_review_completed": true,
     "coordinator_approved": true,
@@ -23,8 +21,7 @@
       "W003": "approve_revision",
       "W006": "approve_revision",
       "W013": "approve_revision"
-    },
-    "notes": "Independent human review by Wahaj Aziz on 2026-11-25, as confirmed by the research team. All 20 pairs reviewed; 134 P, 2 M (W013 C3), 4 NA (availability C5), 0 F, 0 CJ. All 12 families recommended for approval. W013 minor shared pronoun ambiguity is non-blocking; retain wording. Correct A020 documentation to enduring loyalty and claimed close friendship; correct rubric NA placement to C5. No response edits recommended for this hash"
+    }
   },
   "source": "data\\wording_pairs_v1.jsonl",
   "source_sha256": "3bb242c945817b4c60a7daf17db6b5aa636421d131aa2010999914fafca7edca",
@@ -331,5 +328,6 @@
       "applied": true,
       "approval_decision": "approve_revision"
     }
-  ]
+  ],
+  "approval_record": "De-identified summary. Signed original and notes held in restricted research storage."
 }

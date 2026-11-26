@@ -78,39 +78,13 @@ The distinction between wording preference and need for correction is important 
 
 These observations are development-stage evidence only. High agreement is not proof of independence, validity or generalizability. Any final rubric or policy changes should be frozen before held-out evaluation; reserve families should not be used for iterative development. Claims about perceived humanness or relationship require an appropriate separate blinded measurement task if pursued.
 
-## 7. Reproduction and publication (PowerShell, repository root)
+## 7. Reproduction and data handling
 
-The coordinator has already executed the following command successfully:
+Run the script with the local validated ballots:
 
-```powershell
-$env:PYTHONUTF8 = "1"
-python analyze_task7.py --validated private/task6-human-annotations/validated --out private/task7-disagreement
-```
+    python analyze_task7.py --validated private/task6-human-annotations/validated --out private/task7-disagreement
 
-The script prints the per-question agreement metrics and `2 disagreements; human discussion not performed.` The destination must be new; do not rerun into or overwrite the existing frozen output directory merely to prepare the pull request. Preserve the private output snapshot and publish exact copies of its three JSON reports.
-
-```powershell
-New-Item -ItemType Directory -Force data/annotation/results/task7
-Copy-Item private/task7-disagreement/aggregate.json data/annotation/results/task7/
-Copy-Item private/task7-disagreement/disagreements.json data/annotation/results/task7/
-Copy-Item private/task7-disagreement/majority_private.json data/annotation/results/task7/
-```
-
-The filename `majority_private.json` is retained for compatibility with the existing utility; under the revised publication decision, a copy of this pseudonymized derived report is included in the repository. It contains review IDs, pair hashes, computational majority values and vote counts, not the explicit original/edited mapping. `disagreements.json` includes pseudonymous reviewer IDs and conflicting ratings. Publication of these case-level data is conditional on consent, applicable research ethics requirements and privacy checks, consistent with the Task 6 workbook publication policy. Do not include names, contact details, identifiable reviewer notes or other personal records. A genuinely completed, consent-cleared, de-identified discussion record may be added separately when available; the blank discussion template is not evidence of discussion.
-
-The validated JSONL inputs, validation report, coordinator manifest, explicit A/B-to-version mapping and OA inputs remain outside this PR. Published cases and source materials may permit reconstruction of candidate identities, so keep future blinded reviewers isolated from the published materials.
-
-## 8. Final repository deliverables
-
-| Repository path | Purpose |
-| --- | --- |
-| `analyze_task7.py` | Reproducible agreement and disagreement analysis |
-| `docs/Prepare and annotate the development set mds/TASK7_DISAGREEMENT.md` | This methodology, results and analytical review |
-| `data/annotation/results/task7/aggregate.json` | Aggregate agreement and rating distributions |
-| `data/annotation/results/task7/disagreements.json` | Original conflicting ratings and review status |
-| `data/annotation/results/task7/majority_private.json` | Computed case-level majority summaries |
-
-The five files above are the Task 7 computational submission. Keep original Task 6 workbooks unchanged. Run the repository unit tests and inspect the staged files before committing. Do not stage unrelated untracked Task 4/5 materials. The three published JSON reports should be byte-for-byte copies of the locally generated reports; no post-hoc alteration of judgments or discussion status is permitted.
+Retain the complete output in restricted storage. The repository contains the aggregate agreement report. Individual votes and case-level majority outputs remain in the restricted study record. Preserve original submissions and record any later discussion or adjudication separately.
 
 ## 9. Completion and handoff
 
