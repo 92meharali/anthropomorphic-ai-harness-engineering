@@ -1,0 +1,10 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "preference": {"type": "string", "enum": ["A", "B", "tie", "cannot_judge"]},
+    "cue_needs_correction": {"type": "string", "enum": ["A", "B", "both", "neither", "cannot_judge"]},
+    "content_preserved": {"type": ["boolean", "null"]}
+  },
+  "required": ["preference", "cue_needs_correction", "content_preserved"]
+}
