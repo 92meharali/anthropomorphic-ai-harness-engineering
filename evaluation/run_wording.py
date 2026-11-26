@@ -8,12 +8,16 @@ import urllib.error
 
 from . import cue_output, cue_routing, pair_judge
 from .data import digest, read_jsonl, write_json
+from .held_out import cohort_for
 from .judges import parse_openai
 from .oa_history import MODEL, oa_jobs
 from .run import load_env, post
 from .wording_harness import FILES, indexed, signed_choice
 
 MAX_CALLS_PER_PAIR = 9
+TRACE_FILES = ('pairs.jsonl', 'requests_and_results.jsonl')
+RUN_MODULES = ('cue_output', 'cue_routing', 'data', 'decision', 'held_out',
+               'judges', 'oa_history', 'pair_judge', 'run', 'run_wording', 'wording_harness')
 
 
 def load_cases(study, source):
@@ -82,6 +86,87 @@ def score_pair(record, pair, jobs, capabilities, detector_model, pair_model, req
                            for name, trace in traces.items()}}}
 
 
+def configuration(study, source, cases, caps, detector_model, pair_model):
+    root = Path(__file__).parent
+    return {
+        'version': 2, 'cohort': cohort_for(source), 'cases': len(cases),
+        'max_requests_upper_bound': len(cases) * MAX_CALLS_PER_PAIR,
+        'study_manifest_sha256': digest((study / 'manifest.json').read_bytes()),
+        'source_sha256': digest(source.read_bytes()), 'capabilities': caps,
+        'models': {'detector': detector_model, 'pair': pair_model, 'oa': MODEL},
+        'code_sha256': {name: digest((root / (name + '.py')).read_bytes()) for name in RUN_MODULES},
+        'rubric_sha256': {p.name: digest(p.read_bytes()) for p in (
+            cue_output.RUBRIC_PATH, cue_output.SCHEMA_PATH,
+            pair_judge.GUIDE_PATH, pair_judge.SCHEMA_PATH, study / 'protocol.json')},
+    }
+
+
+def configuration_hash(config):
+    return digest(json.dumps(config, sort_keys=True, ensure_ascii=False))
+
+
+def check_approval(config, approval):
+    if config['cohort'] != 'held_out':
+        return
+    if (not isinstance(approval, dict)
+            or approval.get('configuration_sha256') != configuration_hash(config)
+            or any(not isinstance(approval.get(field), str) or not approval[field].strip()
+                   for field in ('content_review_record', 'protocol_signoff_record'))):
+        raise ValueError('Held-out scoring requires content review and protocol sign-off bound to this configuration')
+
+
+def check_freeze(config, snapshot, approval):
+    if snapshot.get('status') != 'dry_run' or snapshot.get('configuration') != config:
+        raise ValueError('Configuration differs from the frozen dry run')
+    if snapshot.get('configuration_sha256') != configuration_hash(config):
+        raise ValueError('Frozen configuration hash mismatch')
+    check_approval(config, approval)
+
+
+def verify_run(study, source, run):
+    manifest = json.loads((run / 'manifest.json').read_text())
+    status = json.loads((run / 'status.json').read_text())
+    if manifest.get('status') != 'live_requested' or status.get('status') != 'attempts_completed':
+        raise ValueError('Comparison run is incomplete')
+    if status.get('manifest_sha256') != digest((run / 'manifest.json').read_bytes()):
+        raise ValueError('Run manifest changed after scoring')
+    for name in TRACE_FILES:
+        if status['files_sha256'][name] != digest((run / name).read_bytes()):
+            raise ValueError(f'Completed run file changed: {name}')
+    cases = load_cases(study, source)
+    caps = cue_output.load_capabilities()
+    models = manifest['configuration']['models']
+    config = configuration(study, source, cases, caps, models['detector'], models['pair'])
+    check_freeze(config, {'status':'dry_run', 'configuration':manifest['configuration'],
+                          'configuration_sha256':manifest['configuration_sha256']}, manifest.get('approval'))
+    logs = read_jsonl(run / 'requests_and_results.jsonl')
+    if len(logs) != status['calls']:
+        raise ValueError('Run call count disagrees with the completed log')
+    logged = iter(logs)
+    reconstructed = []
+    for record, pair, jobs in cases:
+        mismatch = []
+        def request(stage, body):
+            row = next(logged, None)
+            if (row is None or row.get('review_id') != pair['review_id']
+                    or row.get('stage') != stage or row.get('request') != body
+                    or row.get('request_sha256') != cue_output.request_sha256(body)):
+                mismatch.append(stage)
+                return None
+            raw = row.get('raw')
+            if raw is not None and (not isinstance(raw, dict) or row.get('usage') != raw.get('usage')
+                                    or row.get('returned_model') != raw.get('model')):
+                mismatch.append(stage)
+                return None
+            return raw
+        reconstructed.append(score_pair(record, pair, jobs, caps, models['detector'], models['pair'], request))
+        if mismatch:
+            raise ValueError(f'Missing or mismatched call trace for {pair["review_id"]}')
+    if next(logged, None) is not None or reconstructed != read_jsonl(run / 'pairs.jsonl'):
+        raise ValueError('Saved choices do not match the replayed provider outputs')
+    return reconstructed, logs
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--study', type=Path, required=True)
@@ -91,11 +176,15 @@ def main():
     parser.add_argument('--pair-model', default=MODEL)
     parser.add_argument('--env-file', type=Path, default=Path('.env'))
     parser.add_argument('--live', action='store_true')
+    parser.add_argument('--freeze-manifest', type=Path, help='Manifest from the offline dry run')
+    parser.add_argument('--approval', type=Path, help='Required held-out sign-off record')
     parser.add_argument('--max-calls', type=int)
     args = parser.parse_args()
     cases = load_cases(args.study, args.source)
     upper = len(cases) * MAX_CALLS_PER_PAIR
     caps = cue_output.load_capabilities()
+    config = configuration(args.study, args.source, cases, caps, args.detector_model, args.pair_model)
+    approval = None
     # Validate the model request contracts before creating any run output.
     for record, pair, _ in cases:
         if pair['A'] == pair['B']:
@@ -107,6 +196,13 @@ def main():
     if args.live:
         if args.max_calls is None or args.max_calls < upper:
             parser.error(f'--live requires --max-calls of at least {upper} to cover this cohort')
+        if args.freeze_manifest is None:
+            parser.error('--live requires --freeze-manifest')
+        approval = json.loads(args.approval.read_text()) if args.approval else None
+        try:
+            check_freeze(config, json.loads(args.freeze_manifest.read_text()), approval)
+        except ValueError as exc:
+            parser.error(str(exc))
         load_env(args.env_file)
         key = os.environ.get('OPENAI_API_KEY')
         if not key:
@@ -115,14 +211,7 @@ def main():
     args.out.mkdir(parents=True, exist_ok=False)
     write_json(args.out / 'manifest.json', {
         'status': 'live_requested' if args.live else 'dry_run',
-        'cases': len(cases), 'max_requests_upper_bound': upper,
-        'study_manifest_sha256': digest((args.study / 'manifest.json').read_bytes()),
-        'source_sha256': digest(args.source.read_bytes()), 'capabilities': caps,
-        'models': {'detector': args.detector_model, 'pair': args.pair_model, 'oa': MODEL},
-        'code_sha256': {p.name: digest(p.read_bytes()) for p in sorted(Path(__file__).parent.glob('*.py'))},
-        'rubric_sha256': {p.name: digest(p.read_bytes()) for p in (
-            cue_output.RUBRIC_PATH, cue_output.SCHEMA_PATH,
-            pair_judge.GUIDE_PATH, pair_judge.SCHEMA_PATH, args.study / 'protocol.json')},
+        'configuration': config, 'configuration_sha256': configuration_hash(config), 'approval': approval,
     })
     if not args.live:
         print(f'Checked request construction for {len(cases)} pairs, at most {upper} live calls. No API calls.')
@@ -164,7 +253,11 @@ def main():
             if terminal is not None:
                 write_json(args.out / 'status.json', {'status': 'stopped', 'http_status': terminal, 'calls': calls})
                 parser.exit(1, f'Stopped on HTTP {terminal}; partial records saved.\n')
-    write_json(args.out / 'status.json', {'status': 'attempts_completed', 'calls': calls})
+    write_json(args.out / 'status.json', {
+        'status': 'attempts_completed', 'calls': calls,
+        'manifest_sha256': digest((args.out / 'manifest.json').read_bytes()),
+        'files_sha256': {name: digest((args.out / name).read_bytes()) for name in TRACE_FILES},
+    })
     print(f'Finished {len(cases)} pairs and {calls} calls. Review coverage before interpretation.')
 
 
