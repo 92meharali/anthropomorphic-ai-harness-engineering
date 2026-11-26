@@ -7,9 +7,10 @@ import math
 from pathlib import Path
 import random
 
-from . import pair_judge
+from . import humt as humt_scorer, pair_judge
 from .data import digest, read_jsonl, write_json
-from .wording_harness import FILES, indexed, signed_choice
+from .run_wording import verify_run
+from .wording_harness import indexed, signed_choice
 
 ARMS = ('keep_original', 'lower_humt', 'frozen_oa', 'direct_pair', 'full', 'masked')
 PICKS = ('A', 'B')
@@ -96,27 +97,42 @@ def metrics(cases, arm):
             'hold_rate': fraction(final['hold'] + final['unresolved'], len(cases))}
 
 
-def summarize(study, run, humt_path, reviewer_paths):
+def verified_humt(study, humt_path, expected_ids):
+    manifest = json.loads((humt_path.parent / 'manifest.json').read_text())
+    expected = {
+        'upstream_commit': humt_scorer.UPSTREAM, 'model': humt_scorer.MODEL,
+        'revision': humt_scorer.REVISION, 'character_limit': humt_scorer.CHAR_LIMIT,
+        'dropout_samples_per_group': humt_scorer.SAMPLES, 'seed': humt_scorer.SEED,
+        'seed_policy': 'base seed plus 32-bit scored-text digest prefix',
+        'device': 'cpu', 'threads': 1,
+        'input_sha256': digest((study / 'oa_inputs.jsonl').read_bytes()),
+        'scorer_sha256': digest(Path(humt_scorer.__file__).read_bytes()),
+        'output_sha256': digest(humt_path.read_bytes()), 'responses': len(expected_ids),
+    }
+    if any(manifest.get(k) != v for k, v in expected.items()):
+        raise ValueError('HumT manifest does not match the pinned scorer, study or output')
+    versions = manifest.get('versions', {})
+    if (str(versions.get('torch', '')).split('+')[0] != '2.7.1'
+            or versions.get('transformers') != '4.52.4'):
+        raise ValueError('HumT dependency versions differ from the pinned environment')
+    scores = indexed(read_jsonl(humt_path), 'item_id')
+    if scores.keys() != expected_ids:
+        raise ValueError('HumT must cover every candidate in the frozen study')
+    return scores
+
+
+def summarize(study, source, run, humt_path, reviewer_paths):
     manifest_path = study / 'manifest.json'
-    manifest = json.loads(manifest_path.read_text())
-    for name in FILES:
-        if digest((study / name).read_bytes()) != manifest['sha256'][name]:
-            raise ValueError(f'Frozen study file changed: {name}')
-    run_manifest = json.loads((run / 'manifest.json').read_text())
-    if (run_manifest['study_manifest_sha256'] != digest(manifest_path.read_bytes())
-            or json.loads((run / 'status.json').read_text())['status'] != 'attempts_completed'):
-        raise ValueError('Comparison run is incomplete or belongs to another study')
+    replayed, logs = verify_run(study, source, run)
     packet = indexed(read_jsonl(study / 'review_packet.jsonl'), 'review_id')
     keys = indexed(read_jsonl(study / 'pair_key.jsonl'), 'review_id')
-    results = indexed(read_jsonl(run / 'pairs.jsonl'), 'review_id')
-    humt = indexed(read_jsonl(humt_path), 'item_id')
+    results = indexed(replayed, 'review_id')
+    humt = verified_humt(study, humt_path, {f'{rid}-{p}' for rid in packet for p in PICKS})
     if len({p.resolve() for p in reviewer_paths}) != 3:
         raise ValueError('Supply three separate reviewer files')
     reviewers = [indexed(read_jsonl(p), 'review_id') for p in reviewer_paths]
     if not packet or any(rows.keys() != packet.keys() for rows in [keys, results, *reviewers]):
         raise ValueError('Packet, predictions or ballot coverage mismatch')
-    if set(humt) - {f'{rid}-{p}' for rid in packet for p in PICKS}:
-        raise ValueError('Unexpected HumT item')
 
     cases = []
     inter = {f: Counter() for f in JUDGMENTS}
@@ -143,11 +159,11 @@ def summarize(study, run, humt_path, reviewer_paths):
                     inter[field]['matches'] += a == b
         values, oa = {}, {}
         for pos in PICKS:
-            score = humt.get(f'{rid}-{pos}')
-            value = None if score is None else score['humt']
-            if score is not None and score['response_sha256'] != digest(pair[pos]):
+            score = humt[f'{rid}-{pos}']
+            value = score['humt']
+            if score['response_sha256'] != digest(pair[pos]):
                 raise ValueError(f'HumT scored different text for {rid}-{pos}')
-            if value is not None and (type(value) not in (float, int) or not math.isfinite(value)):
+            if type(value) not in (float, int) or not math.isfinite(value):
                 raise ValueError('Invalid HumT result')
             values[pos] = value
             result = output['oa'][pos]
@@ -162,7 +178,7 @@ def summarize(study, run, humt_path, reviewer_paths):
                       'original': original, 'oa': oa, 'choices': choices})
 
     usage = defaultdict(Counter)
-    for row in read_jsonl(run / 'requests_and_results.jsonl'):
+    for row in logs:
         if row['review_id'] not in packet:
             raise ValueError('Call trace is not from the frozen packet')
         stage = row['stage'].removesuffix('_A').removesuffix('_B')
@@ -186,6 +202,7 @@ def summarize(study, run, humt_path, reviewer_paths):
                              'run_manifest': digest((run / 'manifest.json').read_bytes()),
                              'predictions': digest((run / 'pairs.jsonl').read_bytes()),
                              'requests': digest((run / 'requests_and_results.jsonl').read_bytes()),
+                             'humt_manifest': digest((humt_path.parent / 'manifest.json').read_bytes()),
                              'humt': digest(humt_path.read_bytes()),
                              'ballots': [digest(p.read_bytes()) for p in reviewer_paths]}}
 
@@ -193,12 +210,13 @@ def summarize(study, run, humt_path, reviewer_paths):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--study', type=Path, required=True)
+    parser.add_argument('--source', type=Path, required=True)
     parser.add_argument('--run', type=Path, required=True)
     parser.add_argument('--humt', type=Path, required=True)
     parser.add_argument('--reviewers', type=Path, nargs=3, required=True)
     parser.add_argument('--out', type=Path, required=True)
     args = parser.parse_args()
-    result = summarize(args.study, args.run, args.humt, args.reviewers)
+    result = summarize(args.study, args.source, args.run, args.humt, args.reviewers)
     args.out.mkdir(parents=True, exist_ok=False)
     write_json(args.out / 'comparison.json', result)
     print(f'Saved comparison to {args.out}')
