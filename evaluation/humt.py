@@ -31,13 +31,14 @@ def score_inputs(inputs, scorer):
         if not isinstance(text, str) or not text.strip():
             raise ValueError('Expected a nonempty response')
         seen.add(identifier)
-        # Shared response text across contexts receives the same score.
-        if text not in cache:
-            value = scorer(text)
+        # HumT sees only the scored prefix. Keep the full answer hash for joins.
+        scored = text[:CHAR_LIMIT]
+        if scored not in cache:
+            value = scorer(scored)
             if type(value) not in (int, float) or not math.isfinite(value):
                 raise ValueError('HumT scorer returned a nonfinite value')
-            cache[text] = value
-        rows.append({'item_id': identifier, 'response_sha256': digest(text), 'humt': cache[text]})
+            cache[scored] = value
+        rows.append({'item_id': identifier, 'response_sha256': digest(text), 'humt': cache[scored]})
     return rows
 
 
@@ -80,10 +81,12 @@ def smoke():
         supplied.append(prompts)
         return -2 if prompts[0].startswith('He ') else -3
     text = 'A' * 300 + ' unscored suffix'
-    rows = score_inputs([{'item_id': 'a', 'response': text}, {'item_id': 'b', 'response': text}],
+    other = 'A' * 300 + ' a different suffix'
+    rows = score_inputs([{'item_id': 'a', 'response': text}, {'item_id': 'b', 'response': other}],
                         lambda s: contrast(s, group))
     assert len(supplied) == 2 and supplied[0][1] == 'She said, "' + 'A'*300 + '"'
-    assert {r['humt'] for r in rows} == {1} and {r['response_sha256'] for r in rows} == {digest(text)}
+    assert {r['humt'] for r in rows} == {1}
+    assert {r['response_sha256'] for r in rows} == {digest(text), digest(other)}
     assert digest(text) != digest(text[:CHAR_LIMIT])
     print('Offline smoke passed: score direction, 300-character truncation, full-text hash, repeated response reuse.')
 
@@ -113,7 +116,7 @@ def main():
     write_json(args.out_dir / 'manifest.json', {
         'upstream_commit': UPSTREAM, 'model': MODEL, 'revision': REVISION,
         'character_limit': CHAR_LIMIT, 'dropout_samples_per_group': SAMPLES,
-        'seed': SEED, 'seed_policy': 'base seed plus 32-bit response digest prefix',
+        'seed': SEED, 'seed_policy': 'base seed plus 32-bit scored-text digest prefix',
         'device': 'cpu', 'threads': 1, 'versions': versions,
         'input_sha256': digest(args.input.read_bytes()), 'scorer_sha256': digest(Path(__file__).read_bytes()),
         'output_sha256': digest(result.read_bytes()), 'responses': len(scores),
