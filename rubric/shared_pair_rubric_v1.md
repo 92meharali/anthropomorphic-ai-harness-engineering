@@ -1,6 +1,6 @@
 # Shared human–LLM pair evaluation rubric — v1
 
-**Scope:** Issue #1, Build the Harness; development alignment, not yet a frozen held-out protocol.
+**Scope:** Issue #1, Build the Harness, Task 1; development rubric, not yet a frozen held-out protocol.
 
 ## 1. Single source of truth
 
@@ -29,16 +29,16 @@ The model receives only the exact frozen `prompt`, `A` and `B` text, with the sa
 | Component | Unit and output | Role |
 | --- | --- | --- |
 | Shared pair evaluator | Two answers; the three judgments above | Direct comparison against original reviewer ballots |
-| Structured cue detector (Harness Tasks 1–2) | One candidate; exact spans, cue type, implied claim, evidence references/status | Mechanistic diagnosis |
+| Structured cue detector (Harness Task 2) | One candidate; exact spans, cue type, implied claim, evidence references/status | Mechanistic diagnosis |
 | Deterministic controller (Harness Task 3) | Verified evidence and candidate checks; keep/edit/hold | Intervention policy |
 | Frozen OA | Existing whole-response rating | Independent baseline/gate |
 | HumT | Human-like tone score | Independent comparator |
 
-The cue-specific rubric continues to operationalize memory, relationship/availability and ordinary warmth, including incomplete evidence and hold conditions. It is not a second human annotation rubric and must not be substituted for the shared three-question evaluator. The detector's single-candidate result alone cannot establish pair preference or content preservation. A hold is not a tie; a less preferred answer need not require correction; correction does not prove an alternate preserves content.
+The companion [operational cue rubric](cue_rubric_v1.md) defines memory, relationship/availability and ordinary warmth, including incomplete evidence and hold conditions. It is not a second human annotation rubric and must not be substituted for the shared three-question evaluator. The detector's single-candidate result alone cannot establish pair preference or content preservation. A hold is not a tie; a less preferred answer need not require correction; correction does not prove an alternate preserves content.
 
 For the full harness, evaluate the detector/controller's actual outputs separately from this direct LLM-judge baseline. Map verified per-candidate correction decisions into A/B/both/neither only when both candidates are resolved; otherwise report cannot_judge and retain the operational hold status. Selection of A or B is an action, not a direct preference judgment; report selection agreement separately. A pair content-preservation check must examine both answers. Do not relabel a keep/edit/hold trace as a human-style ballot without the additional judgments.
 
-Remove development label counts and result-derived hints from any runtime prompt (the existing Task 1 cue rubric's section 7 includes such counts). Keep those results in research documentation only. Do not provide held-out ratings or answer keys to any model.
+Exclude development label counts, reviewer results and result-derived hints from all runtime prompts. Keep those results in research documentation only. Do not provide held-out ratings or answer keys to any model.
 
 ## 4. Comparison protocol for development
 
@@ -46,4 +46,4 @@ Match predictions to original ballots by review ID and canonical pair SHA-256. V
 
 ## 5. Implementation and reproducibility
 
-`rubric/pair_judgment_schema_v1.json` defines the three model output fields. `evaluation/pair_judge.py` builds requests, parses structured output, attaches identifiers locally and compares complete validated ballots. `evaluation/test_pair_judge.py` exercises the offline contract. These additions do not alter the existing detector, controller, OA protocol, frozen dataset, or human judgments. No live model call or provider/model selection is included. Pin model ID, settings, retry/failure policy, exact guide and held-out analysis before test inference. Use development cases only for debugging. Do not claim held-out superiority or independent human provenance from these technical checks.
+`rubric/pair_judgment_schema_v1.json` defines the three model output fields. `evaluation/pair_judge.py` builds requests, parses structured output, attaches identifiers locally and compares complete validated ballots. `evaluation/test_pair_judge.py` exercises the offline contract. This Task 1 implementation does not depend on earlier harness branches. The detector and controller will be implemented in Tasks 2 and 3. The OA protocol, frozen dataset and original judgments are unchanged. No live model call or provider/model selection is included. Pin model ID, settings, retry/failure policy, exact guide and held-out analysis before test inference. Use development cases only for debugging. Do not claim held-out superiority or independent human provenance from these technical checks.
