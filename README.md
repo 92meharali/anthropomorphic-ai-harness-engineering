@@ -7,7 +7,7 @@ For example, “You mentioned earlier that writing things down helps” fits whe
 ## Current status
 
 - **Available:** the OA runner and protocol, single-revision OA controller, and cue-aware harness with evidence checks, keep/edit/hold routing and a separate OA gate.
-- **Held-out comparison:** the full harness matched the submitted majority preference on 80/80 fixed pairs. The direct pairwise judge matched 64/80 and frozen OA matched 33/80. The [provisional results](docs/WORDING_RESULTS.md) describe the strengths and limits. Rating provenance and the HumT baseline remain pending.
+- **Held-out comparison:** the full harness matched the reviewer majority on 80/80 fixed pairs. The direct pairwise judge matched 64/80, lower HumT matched 43/80 and frozen OA matched 33/80. See the [six-method report](docs/WORDING_RESULTS.md) for results and study limits.
 
 | Completed pilot | Result |
 |---|---|
@@ -20,7 +20,7 @@ The 58 human-revise responses in the 120-case test were constructed. The control
 
 The [wording dataset](data/wording_pairs_v1.jsonl) contains **60 distinct prompt families, 100 paired cases across contexts, and 200 candidate trials**. The prompts and responses are newly authored adaptations of unused PERSONA scenarios. [Dataset handoff](data/README.md) explains how to prepare a blinded review packet, dry-run the full batch, and import human ratings.
 
-Use the [three synthetic examples](examples/wording_pairs.jsonl) below for a quick smoke check. The [roadmap issue](https://github.com/92meharali/anthropomorphic-ai-harness-engineering/issues/1) tracks the remaining evaluation work.
+Use the [three synthetic examples](examples/wording_pairs.jsonl) below for a quick smoke check. [Issue #1](https://github.com/92meharali/anthropomorphic-ai-harness-engineering/issues/1) tracks the completed fixed-pair study.
 
 ## Run the offline example
 
@@ -53,6 +53,6 @@ Keep study inputs, generated packets, annotation submissions, scoring logs and A
 ![Proposed cue-aware harness workflow. The system identifies a cue, checks the evidence, and keeps, edits, or holds the answer before whole-answer OA scoring.]<img width="1726" height="2160" alt="mermaid-diagram (1)" src="https://github.com/user-attachments/assets/a8de52b8-1ab8-46f9-bd87-65f649e12442" />
 
 
-[Editable Mermaid source](docs/architecture/cue-aware-harness.mmd). In the first offline experiment, an edit means selecting a prepared alternative. A later experiment will test generating an edit.
+[Editable Mermaid source](docs/architecture/cue-aware-harness.mmd). In the fixed-pair study, an edit meant selecting a prepared alternative. [Issue #26](https://github.com/92meharali/anthropomorphic-ai-harness-engineering/issues/26) tracks the generated-rewrite experiment.
 
 
