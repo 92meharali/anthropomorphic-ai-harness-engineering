@@ -45,6 +45,7 @@ The first command checks the local software. Preparation writes a blinded A/B pa
 - [Harness engineering and related work](docs/HARNESS_ENGINEERING.md)
 - [Wording study runbook](docs/WORDING_HARNESS.md)
 - [Held-out wording results](docs/WORDING_RESULTS.md)
+- [Generated-rewrite experiment protocol and commands](docs/GENERATED_REWRITES.md)
 
 Keep study inputs, generated packets, annotation submissions, scoring logs and API keys in ignored local directories. The historical workspace preserves earlier pilot scripts and artifacts.
 
