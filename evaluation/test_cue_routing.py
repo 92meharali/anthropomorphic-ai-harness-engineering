@@ -174,6 +174,18 @@ class RoutingTests(unittest.TestCase):
                 self.assertEqual(trace['cue_decision']['action'], 'hold')
                 self.assertEqual(calls, [])
 
+    def test_ambiguous_or_mixed_session_language_holds(self):
+        for span in ('You said in an earlier conversation that a timer helps.',
+                     'You said in an earlier conversation in this session that a timer helps.',
+                     'You said in a previous conversation within this chat that a timer helps.'):
+            with self.subTest(span=span):
+                rec = record(span + ' Try one minute.', 'Try one minute.')
+                indicator = evidence('capability', 'can_access_prior_sessions')
+                c = item('memory', span, 'unsupported', [indicator])
+                trace, _, calls = self.route(rec, original_result=result(c), masked=True)
+                self.assertEqual(trace['cue_decision']['action'], 'hold')
+                self.assertEqual(calls, [])
+
     def test_unresolved_cue_overrides_unsupported(self):
         c = item('availability', 'Ask a qualified professional', 'unclear', [])
         t, _, calls = self.route(original_result=result(item(), c))
