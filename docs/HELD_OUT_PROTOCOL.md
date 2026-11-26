@@ -1,6 +1,6 @@
 # Held-out comparison protocol
 
-Status: proposed freeze checklist. Confirm these settings before any held-out model scores or human judgments are opened. Use the 20 development pairs for debugging and eligibility checks.
+Wording-v1 execution uses the protocol and scoring code at commit `91044f8dfa55db31ace336165407a1525665ce62`. The coordinator confirmed the 80-case workbook was checked and authorized scoring. The exact workbook and scoring configuration hashes are in the private study record, along with the scope of the review confirmation.
 
 ## Cohort and sample size
 
@@ -18,6 +18,8 @@ For an Excel handoff, run the following with Node.js and the Codex workspace's `
     python3 -m evaluation.annotation_xlsx --packet private/wording-v1-reserved/study/review_packet.jsonl --workbook private/review.xlsx --verify-blank
 
 Give each reviewer a separate copy of the approved workbook. For each completed copy, run the same Python command with `--out private/R01.jsonl` in place of `--verify-blank`, using a separate output file per reviewer. The importer checks every case and allows ties and abstentions. The coordinator records who completed each copy and how blinding was maintained in the private study log.
+
+Once content review and protocol sign-off are recorded, live scoring and blinded annotation can run in parallel. Give reviewers only the approved workbook. Keep model judgments, the pair key and other reviewers' ratings private until all initial ballots are submitted.
 
 ## Conditions
 
