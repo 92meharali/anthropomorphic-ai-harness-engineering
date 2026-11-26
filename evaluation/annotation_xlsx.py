@@ -45,7 +45,7 @@ def convert(sheet, packet, *, blank=False):
                        **{key: mapping[v] for key, mapping, v in zip(FIELDS, MAP, entries)}})
     for address, (text, formula) in sheet.items():
         match = re.fullmatch(r'([A-Z]+)(\d+)', address)
-        if match and (match[1] not in 'ABCDEFGH' or int(match[2]) > len(packet)+1):
+        if match and (match[1] not in tuple('ABCDEFGH') or int(match[2]) > len(packet)+1):
             if text or formula:
                 raise ValueError(f'Unexpected extra data at {address}')
     return result
