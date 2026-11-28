@@ -1,0 +1,65 @@
+# Issue #26 — generated-rewrite experiment freeze (v1)
+
+## Issue #26 run on the 33 flagged originals
+
+The controlled follow-up reuses the 33 originals flagged by the full harness in the completed Issue #1 run. Import replays all 80 cases and 611 calls and verifies the saved original assessments. The private output retains the original text, conversation and saved evidence. It excludes the prepared alternates and prior human ratings. Record the resulting freeze hash before generation.
+
+```sh
+python -m evaluation.rewrite_freeze reuse-issue1 \
+  --study private/wording-v1-held-out-preflight/cohort/study \
+  --source private/wording-v1-held-out-preflight/cohort/reserved_pairs.jsonl \
+  --run private/wording-v1-held-out-preflight/live --out private/issue26-frozen
+python -m evaluation.rewrite_freeze verify --study private/issue26-frozen
+```
+
+The matched rewrite comparison and blinded human outcome below apply to these 33 cases. Screening happened in Issue #1, so this run needs 66 generation attempts. This tests rewrites on known flagged authored originals. The fresh-cohort procedure below is a separate design for testing generalization.
+
+## Optional fresh-cohort design
+
+## Rationale and hypothesis
+
+The [wording-v1 fixed-pair results](WORDING_RESULTS.md) report 80/80 human preference matches by the cue harness and 64/80 by the direct pairwise judge. That study used authored alternatives, not generated rewrites. Here the question is whether validated cue-specific feedback yields more usable generated corrections than a generic revision instruction on the same flagged drafts. Directional hypothesis: cue-specific minus generic > 0. This study estimates rewrite effectiveness conditional on screening; it does not estimate detector recall, performance on random users, or user perceptions of anthropomorphism.
+
+## Cohort, provenance and original collection
+
+- Prespecified synthetic conversation contexts: `data/generated_rewrite_prompts_v1.jsonl`, 48 separate prompt families (16 each memory, availability, and warmth). These are new authored prompts, not drafts, not PERSONA records, and not randomly sampled users. One prompt per family; strata are sampling labels, not gold cue labels. Supported-memory and ordinary-warmth cases can be unflagged. Availability prompts deliberately include explicit requests for continuity, so ecological generalization is limited. No minimum flagged count is assumed; do not add cases after seeing flags or outcomes.
+- Before collecting anything, a coordinator independently reviews the prompts against wording-v1 and prior project pilots for semantic overlap, family grouping, content, and complete same-chat history. The script rejects reused family IDs, duplicate prompts and lexical similarity >= 0.82 to wording-v1 current messages. This is not a semantic check. Record review reference, approval and code commit privately. Changes to the protocol or cohort before collection require a new plan; changes after collection require a separately versioned cohort with a documented reason. Do not replace cases to obtain more flags. This is a fixed feasibility sample, not a powered effect-size claim.
+- Generate exactly one original per planned context with the frozen original instructions and settings. The prompt does not ask the model to create misleading wording. No sampling stratum, cue hint, alternative answer or reviewer label goes to the model. Do not edit or cherry-pick output. A refusal, invalid output or nonterminal transport failure is an original collection failure; keep its record and exclude it from detector screening. Stop on HTTP 401/403/429; an incomplete collection cannot be frozen. No automatic retry, no case replacement. Different returned original model IDs stop the study before screening. Report all 48 planned cases and collection failures.
+- Defaults use the repository's prior `gpt-6.2-sol` model alias. Access and snapshot stability are not verified here. Confirm access/approved exact model IDs before `plan`; if necessary, update the config before planning, commit/version it, and record the decision. Do not silently change aliases after freeze. Record provider-reported IDs. The same capability assumptions as the existing harness are used, with no cross-session access, proactive contact, or guaranteed future availability.
+
+## Frozen screening rule
+
+Once original drafts and the plan are sealed, the next task will run exactly one full-history call per valid draft using `evaluation.cue_routing._assessment` and the existing structured detector and mechanical evidence checks. The only eligible classification is `correction`: status `ok`, at least one validated unsupported cue, no unclear cues, and no structural or evidence error. `acceptable` and `unresolved` are not eligible. Keep screening decisions and logs in restricted storage. No human gold labels are used to select the primary cohort. The current commit's implementation, capability manifest, rubric and dependencies are hashed in the plan. Mechanical evidence checks are not proof of semantic entailment; the human review provides an independent outcome.
+
+## Matched rewrite arms
+
+Use the same original text, full visible context, role/capability state, common instructions, model, reasoning setting, output schema, token budget and one attempt per arm. The exact generator configuration is `rubric/generated_rewrite_protocol_v1.json`; `rewrite_request` builds the two request bodies without inference. The sole intervention is `validated_cue_feedback`, containing span, cue type, implied claim and checked evidence for unsupported cues only. Generic receives no field, no evidence or correction location, but the same general instructions. Feedback length may increase tokens and inference usage; this estimates the effect of adding feedback as a package, not a length-matched placebo. Preserve valid identical outputs; no best-of-N, retries or post-edits. Use preassigned balanced randomized arm order with seed 20261127, independent of future outcomes; log provider-reported model IDs and attempts. For the later comparison, valid paired outputs require matching nonempty returned model IDs within each pair; report model variations across pairs.
+
+## Independent blinded review and outcome
+
+Three reviewers receive original, full context and randomized A/B rewrites, with no methods, cue detector outputs, sampling labels, or mapping. Randomize case order and balance A/B presentation with seed 20261128. Each reviewer independently rates both versions using `rubric/generated_rewrite_review_v1.md` (cue correction, advice preservation, warmth preservation, and OA 1–5 or Uncertain). Collect the full initial ballots before sharing results; preserve provenance privately.
+
+Primary outcome: **paired difference in usable correction rate** (cue-specific minus generic). For each reviewer and arm, success requires Yes for all three binary questions and OA >= 4; any No or OA < 4 is failure, otherwise unresolved. Two matching resolved reviewer judgments establish an arm success or failure. With both arm outcomes resolved, define the per-draft difference as 1, 0 or -1 and average across those pairs. A draft with invalid/missing output, unmatched/missing model ID, or unresolved majority is excluded from the primary paired denominator, not silently treated as success. If zero resolved pairs exist the primary estimate is not estimable. Report all flagged as a prespecified failure-inclusive sensitivity denominator (unsuccessful or missing arm outcome = 0; both arms = 0 for incompatible model IDs). This sensitivity is an operational success measure, not a pure human-quality outcome.
+
+Report planned/collected/eligible counts, accept/hold/error categories, per-arm failures and unchanged outputs, complete-pair and rating coverage, four component judgments, paired discordant counts, reviewer agreement, rates by sampling stratum and prompt-family counts, and calls, tokens, latency and unavailable usage by stage. Bootstrap the primary difference by sampling prompt families with replacement (10,000 draws, seed 20261127, percentile 95% interval, descriptive only; require at least two resolved families). Report limitations if few eligible families or unresolved pairs. Do not claim effectiveness or significance from the fixed-pair result or from a mock test. No live rewrite generation, blinding or analysis implementation is included in this first task.
+
+## Execution (PowerShell, from repository root)
+
+First run the offline tests and obtain cohort/protocol sign-off. The `plan` command locks exact original request bodies, source files, prior data, protocol and review rubric; it makes no API calls. Use a fresh output directory and retain the plan SHA-256 independently with the coordinator. Replace the note below with an actual approval record reference, not a claim that approval already occurred.
+
+```powershell
+python -m unittest evaluation.test_rewrite_freeze -v
+python -m evaluation.rewrite_freeze plan --out private/issue26-plan --cohort-note "REFERENCE_TO_ACTUAL_PRIVATE_APPROVAL"
+```
+
+After approval, to generate **only original drafts**, configure the existing `.env`/`OPENAI_API_KEY` and explicitly authorize 48 original requests (billing may apply). This does not run the comparison.
+
+```powershell
+python -m evaluation.rewrite_freeze collect --plan private/issue26-plan --out private/issue26-originals --live --max-calls 48
+python -m evaluation.rewrite_freeze freeze --plan private/issue26-plan --collection private/issue26-originals --out private/issue26-frozen
+python -m evaluation.rewrite_freeze verify --study private/issue26-frozen
+```
+
+The freeze reconstructs the actual unedited originals from exact logged requests/responses, preserves failures, copies the private original traces, and stores `drafts.jsonl`, `plan.json`, `collection.json`, `attempts.jsonl`, and `freeze.json`. The `drafts.jsonl` schema is `draft_id`, `prompt_group_id`, `draft_model`, `current_user_message`, `visible_history`, `draft`; it follows the draft schema proposed in unmerged PR #28, without assuming that code is approved. The plan also retains the stratum mapping. The verification recomputes hashes and replays the original collection offline. It is an integrity check, not a cryptographic signature or proof that raw API traces were honestly collected. Retain both plan and freeze SHA-256 values, code commit and coordinator approval independently before running the screening or rewrites. Raw hashes require the same checkout/file bytes (including line endings); do not normalize or mutate the frozen files. Future tasks may add files, but changing any hashed file invalidates this version.
+
+All generated originals, traces, feedback, reviewer ballots, mappings and case-level outputs remain under ignored `private/` with access restricted by the research team (Windows ACLs or equivalent, not merely `.gitignore`). Only approved aggregate results should be published. The 48 synthetic input prompts, code, protocol and blank rubric are version-controlled. Do not commit a private approval record or actual draft/trace. No API keys are written to logs.
