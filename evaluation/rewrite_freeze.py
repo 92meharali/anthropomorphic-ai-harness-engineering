@@ -18,6 +18,9 @@ PROMPTS = 'data/generated_rewrite_prompts_v1.jsonl'
 PROTOCOL = 'rubric/generated_rewrite_protocol_v1.json'
 PRIOR = 'data/wording_pairs_v1.jsonl'
 PRIOR_MANIFEST = 'data/wording_pairs_v1.manifest.json'
+ISSUE1_SOURCE = 'issue1_flagged_originals'
+ISSUE1_STATUS_SHA256 = '4c0c19c5496d5011fe0dde70614533ee759f948b9a336aff21fe57a6881699b4'
+ISSUE1_FLAGGED_COUNT = 33
 DEPENDENCIES = (PROMPTS, PROTOCOL, PRIOR, PRIOR_MANIFEST,
     'rubric/generated_rewrite_review_v1.md', 'rubric/cue_rubric_v1.md',
     'rubric/cue_output_schema_v1.json', 'rubric/oa_protocol.json',
@@ -60,7 +63,11 @@ def load(path):
 
 
 def rows(path):
-    return [loads(line) for line in path.read_text(encoding='utf-8').splitlines() if line.strip()]
+    return decode_rows(path.read_bytes())
+
+
+def decode_rows(data):
+    return [loads(line) for line in data.decode('utf-8').split('\n') if line.strip()]
 
 
 def write(path, data):
@@ -278,7 +285,7 @@ def freeze(root, plan_dir, collection_dir, out):
     check_plan(plan, root)
     collection = load(collection_dir / 'collection.json')
     attempt_bytes = (collection_dir / 'attempts.jsonl').read_bytes()
-    attempts = [loads(line) for line in attempt_bytes.decode('utf-8').splitlines() if line.strip()]
+    attempts = decode_rows(attempt_bytes)
     drafts, failures = reconstruct(plan, attempts, collection, attempt_bytes)
     out.mkdir(parents=True, exist_ok=False, mode=0o700)
     write(out / 'plan.json', plan)
@@ -295,11 +302,88 @@ def freeze(root, plan_dir, collection_dir, out):
     return seal
 
 
+def issue1_plan(root):
+    config = load(root / PROTOCOL)
+    if config['capabilities'] != load(root / PRIOR_MANIFEST)['system_capabilities']:
+        raise ValueError('Study capabilities differ from the original harness')
+    body = {
+        'version': 1, 'source_kind': ISSUE1_SOURCE,
+        'issue1_status_sha256': ISSUE1_STATUS_SHA256,
+        'config': config,
+        'files_sha256': {p: sha((root / p).read_bytes()) for p in
+                         (*DEPENDENCIES, 'evaluation/run_wording.py')},
+    }
+    return {'body': body, 'plan_sha256': sha(canonical(body))}
+
+
+def issue1_seal(plan, drafts, draft_bytes):
+    from . import cue_output, cue_routing
+
+    config = plan['body']['config']
+    if len(drafts) != ISSUE1_FLAGGED_COUNT or len({d['draft_id'] for d in drafts}) != len(drafts):
+        raise ValueError(f'Expected exactly {ISSUE1_FLAGGED_COUNT} unique flagged originals')
+    for row in drafts:
+        if set(row) != (FIELDS - {'sampling_stratum'}) | {'draft', 'draft_model', 'saved_assessment'}:
+            raise ValueError('Unexpected saved draft fields')
+        assessment = row['saved_assessment']
+        state = cue_output.state(row, row['draft'], config['capabilities'])
+        checked = cue_routing.validate_evidence(assessment['result'], state)
+        if assessment['checked_cues'] != checked or not flagged_feedback(assessment, config):
+            raise ValueError('Saved evidence differs from the original context')
+    manifest = {
+        'source_kind': ISSUE1_SOURCE, 'issue1_status_sha256': ISSUE1_STATUS_SHA256,
+        'plan_sha256': plan['plan_sha256'], 'valid_drafts': len(drafts),
+        'drafts_sha256': sha(draft_bytes),
+    }
+    return {'manifest': manifest, 'freeze_sha256': sha(canonical(manifest))}
+
+
+def reuse_issue1(root, prior_study, source, run, out):
+    from .run_wording import load_cases, verify_run
+
+    if sha((run / 'status.json').read_bytes()) != ISSUE1_STATUS_SHA256:
+        raise ValueError('Not the completed Issue #1 held-out run')
+    outcomes, calls = verify_run(prior_study, source, run)
+    if len(outcomes) != 80 or len(calls) != 611:
+        raise ValueError('Unexpected Issue #1 replay coverage')
+    originals = {pair['review_id']: record for record, pair, _ in load_cases(prior_study, source)}
+    plan = issue1_plan(root)
+    drafts = []
+    for outcome in outcomes:
+        full = outcome['traces']['full']
+        assessment = full['assessments'][outcome['original_position']]
+        if assessment['classification'] != 'correction':
+            continue
+        row = originals[outcome['review_id']]
+        drafts.append({
+            'draft_id': outcome['review_id'], 'draft_model': 'wording-v1-authored',
+            'prompt_group_id': row['prompt_group_id'], 'draft': row['original'],
+            'current_user_message': row['current_user_message'],
+            'visible_history': row['visible_history'], 'saved_assessment': assessment,
+        })
+    data = b''.join(canonical(row) + b'\n' for row in drafts)
+    seal = issue1_seal(plan, drafts, data)
+    if sha((run / 'status.json').read_bytes()) != ISSUE1_STATUS_SHA256:
+        raise ValueError('Issue #1 run changed during import')
+    out.mkdir(parents=True, mode=0o700)
+    write(out / 'plan.json', plan)
+    (out / 'drafts.jsonl').write_bytes(data)
+    write(out / 'freeze.json', seal)
+    return seal
+
+
 def verify(root, study):
+    saved = load(study / 'freeze.json')
+    if saved['manifest'].get('source_kind') == ISSUE1_SOURCE:
+        plan = issue1_plan(root)
+        data = (study / 'drafts.jsonl').read_bytes()
+        if load(study / 'plan.json') != plan or issue1_seal(plan, decode_rows(data), data) != saved:
+            raise ValueError('Imported cohort, evidence or rewrite protocol changed')
+        return saved
     plan = load(study / 'plan.json'); check_plan(plan, root)
     collection = load(study / 'collection.json')
     attempt_bytes = (study / 'attempts.jsonl').read_bytes()
-    attempts = [loads(line) for line in attempt_bytes.decode('utf-8').splitlines() if line.strip()]
+    attempts = decode_rows(attempt_bytes)
     drafts, failures = reconstruct(plan, attempts, collection, attempt_bytes)
     saved_bytes = (study / 'drafts.jsonl').read_bytes()
     if saved_bytes != b''.join(canonical(d) + b'\n' for d in drafts):
@@ -339,6 +423,9 @@ def main():
     frozen.add_argument('--out', type=Path, required=True)
     check = commands.add_parser('verify')
     check.add_argument('--study', type=Path, required=True)
+    reuse = commands.add_parser('reuse-issue1')
+    for name in ('study', 'source', 'run', 'out'):
+        reuse.add_argument('--' + name, type=Path, required=True)
     args = parser.parse_args()
     try:
         if args.command == 'plan':
@@ -352,6 +439,11 @@ def main():
             if not result['complete']:
                 parser.exit(1, 'Collection stopped; partial logs saved. Do not freeze or compare.\n')
             print('Original collection complete; verify and freeze before screening.')
+        elif args.command == 'reuse-issue1':
+            result = reuse_issue1(ROOT, private_path(args.study), private_path(args.source),
+                                 private_path(args.run), private_path(args.out))
+            print('Verified original drafts:', result['manifest']['valid_drafts'],
+                  'Freeze SHA-256:', result['freeze_sha256'])
         else:
             result = (freeze(ROOT, private_path(args.plan), private_path(args.collection), private_path(args.out))
                       if args.command == 'freeze' else verify(ROOT, private_path(args.study)))

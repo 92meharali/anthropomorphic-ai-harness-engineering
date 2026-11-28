@@ -1,6 +1,20 @@
 # Issue #26 — generated-rewrite experiment freeze (v1)
 
-**Scope:** first checklist item only. This protocol and preparation code do not constitute a completed experiment or a frozen set of actual generated drafts until the private original collection has been sealed and independently recorded. No comparisons or model judgments are included in this PR.
+## Issue #26 run on the 33 flagged originals
+
+The controlled follow-up reuses the 33 originals flagged by the full harness in the completed Issue #1 run. Import replays all 80 cases and 611 calls and verifies the saved original assessments. The private output retains the original text, conversation and saved evidence. It excludes the prepared alternates and prior human ratings. Record the resulting freeze hash before generation.
+
+```sh
+python -m evaluation.rewrite_freeze reuse-issue1 \
+  --study private/wording-v1-held-out-preflight/cohort/study \
+  --source private/wording-v1-held-out-preflight/cohort/reserved_pairs.jsonl \
+  --run private/wording-v1-held-out-preflight/live --out private/issue26-frozen
+python -m evaluation.rewrite_freeze verify --study private/issue26-frozen
+```
+
+The matched rewrite comparison and blinded human outcome below apply to these 33 cases. Screening happened in Issue #1, so this run needs 66 generation attempts. This tests rewrites on known flagged authored originals. The fresh-cohort procedure below is a separate design for testing generalization.
+
+## Optional fresh-cohort design
 
 ## Rationale and hypothesis
 
