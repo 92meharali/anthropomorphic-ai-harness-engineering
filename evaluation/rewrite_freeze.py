@@ -306,6 +306,7 @@ def issue1_plan(root):
     config = load(root / PROTOCOL)
     if config['capabilities'] != load(root / PRIOR_MANIFEST)['system_capabilities']:
         raise ValueError('Study capabilities differ from the original harness')
+    config['cohort'] = {'drafts': ISSUE1_FLAGGED_COUNT, 'selection': ISSUE1_SOURCE}
     body = {
         'version': 1, 'source_kind': ISSUE1_SOURCE,
         'issue1_status_sha256': ISSUE1_STATUS_SHA256,
