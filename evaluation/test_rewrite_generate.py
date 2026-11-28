@@ -25,6 +25,27 @@ def assess(model, record, draft, caps, withheld, detect):
 
 
 class GenerationTests(unittest.TestCase):
+    def test_saved_assessment_does_not_call_detector(self):
+        config = f.load(f.ROOT / f.PROTOCOL)
+        draft = {
+            'draft_id': 'W9000', 'prompt_group_id': 'test', 'draft_model': 'fixture',
+            'current_user_message': 'Can you help me prepare a checklist?', 'visible_history': [],
+            'draft': 'I will check in next week. Write the checklist today.',
+        }
+        draft['saved_assessment'] = assess(
+            'fixture', draft, draft['draft'], config['capabilities'], False,
+            lambda _: {'classification': 'correction'},
+        )
+        stages = []
+        def request(stage, body):
+            stages.append(stage)
+            return fixtures.response(json.dumps({'response': 'Write the checklist today.'}))
+        outcome = g.evaluate(draft, config, g.ARMS, request,
+                             assess=lambda *_: self.fail('unexpected detector call'),
+                             build_state=state)
+        self.assertTrue(outcome['pair_eligible'])
+        self.assertEqual(stages, list(g.ARMS))
+
     def setUp(self):
         self.fixture = fixtures.FreezeTests()
         self.fixture.setUp()

@@ -4,7 +4,7 @@ This change depends on the six Task 1 files, not the closed PR #28 implementatio
 
 ## Preconditions
 
-- Coordinator has approved the fresh prompt cohort and semantic overlap review, and the frozen protocol. Complete the original collection and freeze described in Task 1. Keep the approved freeze SHA-256 in a separate restricted record before screening. Review and record the Task 2 commit before a live run.
+- For the 33-case controlled follow-up, import the verified Issue #1 originals and saved cue evidence as described in Task 1. Keep the freeze SHA-256 in a separate restricted record before generation. Review and record the Task 2 commit before a live run. The optional fresh-cohort design uses separate original collection and cohort review.
 - Work on a clean checkout that contains Task 1 and Task 2. Run `python -m unittest evaluation.test_rewrite_freeze evaluation.test_rewrite_generate -v` and `python -m unittest discover -q`. The harness integration test must run, not skip, in the full checkout.
 - Existing OpenAI credential setup (`OPENAI_API_KEY` in the ignored `.env` or environment); the frozen model alias must be accessible. Do not change it after freezing. No API key is written by this runner.
 - Keep all generated files in an access-restricted repository `private/` directory; Git ignore alone does not secure filesystem access. Do not upload generated text, evidence, raw calls or later reviewer ballots to GitHub.
@@ -19,10 +19,10 @@ python -m evaluation.rewrite_freeze verify --study private/issue26-frozen
 python -m evaluation.rewrite_generate plan --study private/issue26-frozen --freeze-sha256 $freeze
 ```
 
-Set `$budget` to the maximum printed by `plan` (three times the number of valid frozen originals). For example, only if all 48 originals succeeded, the ceiling is 144 calls. Original-draft collection calls are separate.
+Set `$budget` to the maximum printed by `plan`. This is 66 for the 33 verified Issue #1 drafts. The optional fresh-cohort design reserves up to three calls per valid draft including screening.
 
 ```powershell
-$budget = 144
+$budget = 66
 python -m evaluation.rewrite_generate run --study private/issue26-frozen --freeze-sha256 $freeze --out private/issue26-rewrites --live --max-calls $budget
 python -m evaluation.rewrite_generate verify --study private/issue26-frozen --freeze-sha256 $freeze --out private/issue26-rewrites
 ```
@@ -31,7 +31,7 @@ An existing output directory is rejected. No retries or replacement drafts. A 40
 
 ## Experimental treatment
 
-The existing `cue_routing._assessment` checks each valid frozen draft once, with complete visible history and frozen capabilities. `rewrite_freeze.flagged_feedback` requires a resolved correction classification and extracts only checked unsupported cues. Acceptable and unresolved drafts receive no rewrites. Generation order is assigned by the frozen seed before screening, balanced over all valid drafts (the flagged subset need not be exactly balanced). Both arms call the frozen `rewrite_freeze.rewrite_request`; the only payload difference is `validated_cue_feedback`. No subsequent guard, OA scoring, ranking, manual edits or additional generation attempts are performed. Retain identical-to-original and identical-between-arms outputs. Each arm must return a nonempty structured response and model identity. A pair with missing or different returned generator IDs is ineligible for blinded paired evaluation. Returned model IDs across cases are reported; equal provider IDs do not establish deterministic or identical backend behavior.
+The 33-case follow-up uses the saved resolved assessment of each original. Those assessments already passed the full-history evidence checks in Issue #1. The optional fresh-cohort design calls `cue_routing._assessment` once per draft. `rewrite_freeze.flagged_feedback` extracts the checked unsupported cues from a resolved correction assessment. Generation order is assigned by a frozen seed. Both arms call `rewrite_freeze.rewrite_request` with identical settings; the cue-specific arm receives the additional `validated_cue_feedback` field. Retain identical-to-original and identical-between-arms outputs for review. Valid pairs require a nonempty structured response and the same provider-reported generator ID in both arms. Report failed attempts and model variations separately.
 
 ## Restricted output contract
 
