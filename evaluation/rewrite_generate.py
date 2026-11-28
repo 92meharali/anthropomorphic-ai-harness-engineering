@@ -37,6 +37,7 @@ def setup(root, study, expected):
         raise ValueError('Freeze SHA-256 differs from the independently recorded seal')
     config = f.load(study / 'plan.json')['body']['config']
     drafts = f.rows(study / 'drafts.jsonl')
+    uses_saved_cues = seal['manifest'].get('source_kind') == f.ISSUE1_SOURCE
     if (config['flagging']['implementation'] != 'evaluation.cue_routing._assessment'
             or config['flagging']['history_withheld'] is not False
             or config['flagging']['attempts_per_draft'] != 1
@@ -47,7 +48,8 @@ def setup(root, study, expected):
     random.Random(config['review']['arm_order_seed']).shuffle(orders)
     manifest = {'version': VERSION, 'freeze_sha256': expected,
                 'source_sha256': f.sha((root / SOURCE).read_bytes()),
-                'valid_drafts': len(drafts), 'max_calls': 3 * len(drafts),
+                'valid_drafts': len(drafts), 'max_calls': (2 if uses_saved_cues else 3) * len(drafts),
+                'screening_source': 'saved_issue1' if uses_saved_cues else 'live_detector',
                 'orders': [{'draft_id': d['draft_id'], 'arms': order}
                            for d, order in zip(drafts, orders)]}
     return manifest, config, drafts
@@ -62,9 +64,11 @@ def parse_rewrite(raw):
 
 
 def evaluate(draft, config, order, request, *, assess, build_state):
-    # The same existing detector and evidence checks used by Task 1's frozen rule.
-    assessment = assess(config['detector_model'], draft, draft['draft'],
-                        config['capabilities'], False, lambda body: request('detect', body))
+    # Task 1 revalidated saved assessments against the exact original context.
+    assessment = draft.get('saved_assessment')
+    if assessment is None:
+        assessment = assess(config['detector_model'], draft, draft['draft'],
+                            config['capabilities'], False, lambda body: request('detect', body))
     feedback = f.flagged_feedback(assessment, config)
     outcome = {'draft_id': draft['draft_id'], 'prompt_group_id': draft['prompt_group_id'],
                'current_user_message': draft['current_user_message'],
