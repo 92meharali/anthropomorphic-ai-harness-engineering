@@ -1,30 +1,34 @@
 # Anthropomorphic AI Harness Engineering
 
-This project tests whether a chatbot can correct misleading human-like wording while preserving useful warmth and advice. The proposed harness identifies an exact phrase, checks what it implies against the conversation and trusted system capabilities, and decides whether to keep it, edit it, or hold the answer for review. Our frozen Overall Appropriateness (OA) evaluator checks the whole answer separately.
+This project tests how the context of a conversation changes whether human-like chatbot wording is appropriate. The harness identifies an exact phrase, checks what it implies against the conversation and trusted system capabilities, and decides whether to keep, edit, or hold the answer. A frozen Overall Appropriateness (OA) evaluator checks the whole answer separately. OA scores of 4 or 5 pass, and scores below 4 trigger revision or review.
 
-For example, “You mentioned earlier that writing things down helps” fits when the user said that earlier. When the full available history contains no such mention, the harness can remove the reference and keep the practical suggestion. The main study also tests wording that implies ongoing personal availability. Ordinary warmth is a control for unnecessary edits.
+For example, “You mentioned earlier that writing things down helps” fits when the user said that earlier. If the complete history contains no such mention, the harness can remove the claim and keep the suggestion. If the relevant history is unavailable, the harness can hold the answer. The wording study also tests claims of ongoing availability and uses ordinary warmth to check for unnecessary edits.
 
-## Current status
+## Study results
 
-- **Available:** the OA runner and protocol, single-revision OA controller, and cue-aware harness with evidence checks, keep/edit/hold routing and a separate OA gate.
-- **Held-out comparison:** the full harness matched the reviewer majority on 80/80 fixed pairs. The direct pairwise judge matched 64/80, lower HumT matched 43/80 and frozen OA matched 33/80. See the [six-method report](docs/WORDING_RESULTS.md) for results and study limits.
-
-| Completed pilot | Result |
+| Stage | What we found |
 |---|---|
-| Frozen OA on 120 challenge responses | 116/120 (96.7%) agreement with the initial human pass/revise decisions |
-| Offline OA controller on 40 drafts | Human-rated passes rose from 35/40 to 40/40. Five drafts were revised. |
+| **1. Select and validate the OA evaluator** | We chose the frozen LLM after comparing it with the OpenAI Decision Model on challenge cases. It matched **116/120 (96.7%)** initial human pass/revise decisions on fresh examples, with zero false approvals and four false rejections. In a separate controller pilot, five rewrites raised human-rated passes from **35/40 to 40/40**. [OA pilot results](docs/OA_RESULTS.md) |
+| **2. Decide when to edit human-like wording** | On 80 held-out pairs of prepared answers, the full harness matched human preferences on **80/80**, compared with **64/80** for the direct pairwise LLM judge, **43/80** for lower HumT, and **33/80** for frozen OA. The harness selected the alternate for all 33 flagged originals and kept all 47 acceptable originals. [Six-method report](docs/WORDING_RESULTS.md) |
+| **3. Test how to rewrite flagged drafts** | We reused the 33 flagged originals and generated one generic and one cue-specific rewrite for each. Blinded reviewers rated **31/33** generic rewrites and **33/33** cue-specific rewrites usable. Both arms corrected all cues and preserved advice and warmth. The two differences came from whole-answer OA. [Rewrite results](https://github.com/92meharali/anthropomorphic-ai-harness-engineering/pull/33) |
 
-The 58 human-revise responses in the 120-case test were constructed. The controller results cover five rewrites. See [pilot results and limits](docs/OA_RESULTS.md) for the earlier model comparison and study details.
+The 58 human-revise cases in the OA validation were constructed variants. The held-out harness result applies to choosing between authored answers. The generated-rewrite gain rests on two cases, with a descriptive 95% interval of 0.0 to 15.2 percentage points. Performance on fresh model-generated drafts remains open.
+
+## Next task
+
+Score the **66 existing rewrites** with the frozen OA gate and compare its pass/revise decisions with the blinded human OA ratings. Check whether the gate catches the two generic rewrites that reviewers rated below threshold and how often it rejects a rewrite reviewers passed. [Issue #34](https://github.com/92meharali/anthropomorphic-ai-harness-engineering/issues/34)
 
 ## Data and annotation
 
-The [wording dataset](data/wording_pairs_v1.jsonl) contains **60 distinct prompt families, 100 paired cases across contexts, and 200 candidate trials**. The prompts and responses are newly authored adaptations of unused PERSONA scenarios. [Dataset handoff](data/README.md) explains how to prepare a blinded review packet, dry-run the full batch, and import human ratings.
+The [wording dataset](data/wording_pairs_v1.jsonl) contains **60 prompt families, 100 paired cases, and 200 candidate answers** authored from unused PERSONA scenarios. It includes 20 development and 80 held-out pairs. [Dataset handoff](data/README.md) explains how to prepare a blinded review packet, dry-run the batch, and import human ratings.
 
-Use the [three synthetic examples](examples/wording_pairs.jsonl) below for a quick smoke check. [Issue #1](https://github.com/92meharali/anthropomorphic-ai-harness-engineering/issues/1) tracks the completed fixed-pair study.
+The [completed rewrite study](https://github.com/92meharali/anthropomorphic-ai-harness-engineering/issues/26) used the **33 flagged originals** from [Issue #1](https://github.com/92meharali/anthropomorphic-ai-harness-engineering/issues/1). The [48-prompt cohort](data/generated_rewrite_prompts_v1.jsonl) is reserved for a separate fresh-cohort design. The [rewrite protocol](docs/GENERATED_REWRITE_FREEZE.md) documents both paths.
+
+Keep generated rewrites, completed workbooks, scoring logs, and API keys in access-restricted storage outside version control.
 
 ## Run the offline example
 
-Python 3.10+ works with the standard library. The example uses three synthetic pairs, so it needs neither private research data nor credentials.
+The [three synthetic pairs](examples/wording_pairs.jsonl) run with Python 3.10+ and the standard library, without private research data or credentials.
 
     python3 -m unittest discover -q
     python3 -m evaluation.wording_harness prepare \
@@ -44,17 +48,11 @@ The first command checks the local software. Preparation writes a blinded A/B pa
 - [Study design, architecture and execution plan](docs/CUE_HARNESS_STUDY.md)
 - [Harness engineering and related work](docs/HARNESS_ENGINEERING.md)
 - [Wording study runbook](docs/WORDING_HARNESS.md)
-- [Held-out wording results](docs/WORDING_RESULTS.md)
-- [Generated-rewrite cohort and protocol](docs/GENERATED_REWRITE_FREEZE.md)
+- [Generated-rewrite runbook](docs/GENERATED_REWRITE_GENERATION.md)
 - [Generated-rewrite Excel review](docs/GENERATED_REWRITE_BLINDED_REVIEW.md)
 
-Keep study inputs, generated packets, annotation submissions, scoring logs and API keys in ignored local directories. The historical workspace preserves earlier pilot scripts and artifacts.
+## Architecture
 
-## Proposed architecture
+![Cue-aware harness workflow with evidence checks, keep/edit/hold decisions, and a whole-answer OA gate](docs/architecture/cue-aware-harness.svg)
 
-![Proposed cue-aware harness workflow. The system identifies a cue, checks the evidence, and keeps, edits, or holds the answer before whole-answer OA scoring.]<img width="1726" height="2160" alt="mermaid-diagram (1)" src="https://github.com/user-attachments/assets/a8de52b8-1ab8-46f9-bd87-65f649e12442" />
-
-
-[Editable Mermaid source](docs/architecture/cue-aware-harness.mmd). In the fixed-pair study, an edit meant selecting a prepared alternative. [Issue #26](https://github.com/92meharali/anthropomorphic-ai-harness-engineering/issues/26) tracks the generated-rewrite experiment.
-
-
+[Editable Mermaid source](docs/architecture/cue-aware-harness.mmd). An edit selected a prepared alternative in the fixed-pair study. The follow-up asked the generator to produce a new response for each flagged draft.
