@@ -1,0 +1,2 @@
+# Native Excel authoring and ballot import for issue #26 Task 3
+openpyxl==3.1.5
