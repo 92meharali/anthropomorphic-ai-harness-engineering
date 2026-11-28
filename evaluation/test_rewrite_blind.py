@@ -2,7 +2,12 @@
 import io
 import shutil
 import unittest
-from openpyxl import load_workbook
+try:
+    from openpyxl import load_workbook
+except ModuleNotFoundError as exc:
+    if exc.name != 'openpyxl':
+        raise
+    raise unittest.SkipTest('Install requirements-rewrite-review.txt to test the Excel workflow') from exc
 from . import rewrite_blind as b, rewrite_freeze as f, rewrite_generate as g
 from . import test_rewrite_generate as gen
 
@@ -61,7 +66,9 @@ class BlindTests(unittest.TestCase):
         self.assertEqual(manifest['body']['eligible_pairs'],2)
         self.assertEqual({k['A'] for k in key},set(g.ARMS))
         self.assertEqual([c['review_id'] for c in cases],['RW0001','RW0002'])
-        self.assertEqual(cases,b.build(self.root,self.study,self.run,self.freeze,**self.kw)[1])
+        replay = b.build(self.root, self.study, self.run, self.freeze,
+                         packet_seed=manifest['body']['packet_seed'], **self.kw)
+        self.assertEqual((cases, key), replay[1:3])
         for c in cases:
             self.assertEqual(set(c),{'review_id','visible_history','current_user_message','original','A','B','case_sha256'})
             self.assertEqual(c['A'],c['B'])  # unchanged identical outputs must be retained

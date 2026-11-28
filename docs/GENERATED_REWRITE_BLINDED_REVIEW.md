@@ -1,6 +1,6 @@
 # Issue #26 Task 3 — Blinded Excel review (v2)
 
-Depends on Tasks 1 and 2. Replaces the earlier text/CSV handoff completely. Reviewers receive and return only native `.xlsx` workbooks. No Excel COM, desktop Excel installation or conversion script is required on the coordinator's machine; the runner uses the pinned Python dependency in `requirements-rewrite-review.txt`. JSON/JSONL files are internal restricted research artifacts, not reviewer forms. No model calls or treatment-effect calculations occur in this stage. The frozen rubric, seed, eligibility rule and primary outcome are unchanged.
+Depends on Tasks 1 and 2. Reviewers receive and return native `.xlsx` workbooks. The coordinator uses the pinned Python dependency in `requirements-rewrite-review.txt`. The packet includes the frozen rubric and uses the sealed generation run's eligibility decisions.
 
 ## 1. Install and test
 
@@ -27,7 +27,7 @@ python -m evaluation.rewrite_blind prepare --study private/issue26-frozen --run 
 
 Output includes `packet_sha256`, `screened`, `flagged`, `eligible_pairs`, and reviewer codes. Independently record the actual packet SHA-256 in the coordinator's private record before distributing workbooks. Use a new output directory; existing packet directories are never overwritten. If an earlier packet was distributed, do not silently re-randomize or change it: coordinate a documented migration before starting or continuing review. The older packet format is not compatible with this version.
 
-All and only replay-eligible pairs enter the packet (two valid rewrites with matching nonempty provider-reported generator IDs). Unchanged and identical answers are retained. Case order is shuffled, A/B positions balanced within one, with the frozen seed 20261128. All three reviewers see the same assignments and order; no arm, cue feedback, draft/family ID or model label is added to reviewer materials. Generated text is not edited; if the content itself reveals a method, document that privately and do not silently redact or exclude it. Exact source text is bound in the private case hashes; the workbook uses LF line breaks for display and splits long text across rows without changing wording. Share no mapping or seed with reviewers.
+All replay-eligible pairs enter the packet (two valid rewrites with matching nonempty provider-reported generator IDs). Unchanged and identical answers are retained. Case order is shuffled and A/B positions are balanced within one using a private random seed generated at packet creation. The restricted manifest binds this seed to the packet for replay. All three reviewers see the same anonymous assignments and order. Share only the appropriate workbook with each reviewer. If the generated text itself reveals a method, document that privately and retain the exact output.
 
 ## 3. Reviewer handoff
 

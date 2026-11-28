@@ -7,6 +7,7 @@ import io
 import json
 from pathlib import Path
 import random
+import secrets
 import math
 from zipfile import BadZipFile, ZipFile
 
@@ -30,7 +31,7 @@ def workbook_name(reviewer):
     return WORKBOOK_PREFIX + reviewer + '.xlsx'
 
 
-def build(root, study, run, freeze_sha, *, assess=None, build_state=None):
+def build(root, study, run, freeze_sha, *, packet_seed, assess=None, build_state=None):
     summary = g.verify(root, study, run, freeze_sha, assess=assess, build_state=build_state)
     config = f.load(study / 'plan.json')['body']['config']
     review = config['review']
@@ -40,7 +41,7 @@ def build(root, study, run, freeze_sha, *, assess=None, build_state=None):
     eligible = [r for r in f.rows(run / 'outcomes.jsonl') if r['pair_eligible']]
     if len(eligible) != summary['eligible_pairs']:
         raise ValueError('Inconsistent eligible pair count')
-    rng = random.Random(review['packet_seed'])
+    rng = random.Random(packet_seed)
     rng.shuffle(eligible)
     orders = [g.ARMS if i % 2 == 0 else g.ARMS[::-1] for i in range(len(eligible))]
     if rng.randrange(2):
@@ -233,19 +234,21 @@ def packet_files(cases, key, guide):
     return files
 
 
-def packet_body(root, run, freeze_sha, summary, cases, review):
+def packet_body(root, run, freeze_sha, summary, cases, packet_seed):
     return {'version': VERSION, 'freeze_sha256': freeze_sha,
             'run_status_sha256': f.sha((run / 'status.json').read_bytes()),
             'source_sha256': f.sha((root / SOURCE).read_bytes()),
-            'packet_seed': review['packet_seed'], 'screened': summary['screened'],
+            'packet_seed': packet_seed, 'screened': summary['screened'],
             'flagged': summary['flagged'], 'eligible_pairs': len(cases),
             'reviewers': list(REVIEWERS) if cases else []}
 
 
 def prepare(root, study, run, out, freeze_sha, **kwargs):
-    summary, cases, key, guide, review = build(root, study, run, freeze_sha, **kwargs)
+    packet_seed = secrets.randbits(128)
+    summary, cases, key, guide, _ = build(root, study, run, freeze_sha,
+                                         packet_seed=packet_seed, **kwargs)
     files = packet_files(cases, key, guide)
-    body = packet_body(root, run, freeze_sha, summary, cases, review)
+    body = packet_body(root, run, freeze_sha, summary, cases, packet_seed)
     body['files_sha256'] = {name: f.sha(data) for name, data in files.items()}
     manifest = {'body': body, 'packet_sha256': f.sha(f.canonical(body))}
     out.mkdir(parents=True, exist_ok=False, mode=0o700)
@@ -259,13 +262,17 @@ def prepare(root, study, run, out, freeze_sha, **kwargs):
 
 
 def verify_packet(root, study, run, packet, freeze_sha, packet_sha, **kwargs):
-    summary, cases, key, guide, review = build(root, study, run, freeze_sha, **kwargs)
     manifest = f.load(packet / 'manifest.json')
     body = manifest['body']
     if manifest['packet_sha256'] != packet_sha or f.sha(f.canonical(body)) != packet_sha:
         raise ValueError('Packet does not match independently recorded seal')
+    packet_seed = body['packet_seed']
+    if type(packet_seed) is not int or not 0 <= packet_seed < 2**128:
+        raise ValueError('Invalid private packet seed')
+    summary, cases, key, guide, _ = build(root, study, run, freeze_sha,
+                                         packet_seed=packet_seed, **kwargs)
     metadata = {k:v for k,v in body.items() if k != 'files_sha256'}
-    if metadata != packet_body(root, run, freeze_sha, summary, cases, review):
+    if metadata != packet_body(root, run, freeze_sha, summary, cases, packet_seed):
         raise ValueError('Packet does not match verified generation or source')
     exact = {'cases.jsonl': jsonl_bytes(cases), 'key.jsonl': jsonl_bytes(key)}
     expected = set(exact) | {'reviewers/' + workbook_name(r) for r in body['reviewers']}
