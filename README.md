@@ -47,6 +47,7 @@ The first command checks the local software. Preparation writes a blinded A/B pa
 - [Held-out wording results](docs/WORDING_RESULTS.md)
 - [Generated-rewrite cohort and protocol](docs/GENERATED_REWRITE_FREEZE.md)
 - [Generated-rewrite Excel review](docs/GENERATED_REWRITE_BLINDED_REVIEW.md)
+- [Generated-rewrite results and reporting command](docs/GENERATED_REWRITE_RESULTS.md)
 
 Keep study inputs, generated packets, annotation submissions, scoring logs and API keys in ignored local directories. The historical workspace preserves earlier pilot scripts and artifacts.
 
