@@ -80,7 +80,6 @@
     "rubric": "rubric/generated_rewrite_review_v1.md",
     "oa_threshold": 4,
     "majority": 2,
-    "packet_seed": 20261128,
     "arm_order_seed": 20261127
   },
   "primary_outcome": {
